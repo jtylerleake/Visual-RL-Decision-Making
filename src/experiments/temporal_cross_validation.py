@@ -1,14 +1,11 @@
 
-from common.modules import np, pd, List, Dict, random, os, glob
+from common.modules import np, pd, List, Dict, random, os, glob, PPO, A2C, DQN
 from src.utils.logging import log_function_call, get_logger
-from src.utils.metrics import compute_performance_metrics, aggregate_cv_results
+from src.utils.metrics import compute_performance_metrics, aggregate_cross_validation_results
 from src.pipeline.data_pipeline import DataPipeline
 from src.pipeline.environment_pipeline import EnvironmentPipeline
 from src.models.visual_learner import VisualLearner
 from src.models.benchmarks import MACD, SignR, BuyAndHold, Random
-
-
-import PPO, A2C, DQN
 
 
 class TemporalCrossValidation:
@@ -110,16 +107,13 @@ class TemporalCrossValidation:
             
             # fetch config parameters
             walk_throughs = self.config.get('Walk throughs')
-            lookback_window = self.config.get('Lookback window')
             training_ratio = self.config.get('Training ratio')
             validation_ratio = self.config.get('Validation ratio')
             evaluation_ratio = self.config.get('Evaluation ratio')
 
             # fetch number of data points in dataframe
-            any_key = next(iter(timeseries_data))
-            df = timeseries_data[any_key]
-            num_data_points = len(df)
-            adj_points = num_data_points - lookback_window
+            df = timeseries_data[next(iter(timeseries_data))]
+            num_gaf_imgs = len(df) - self.config.get('GAF timeseries periods') + 1
             
             # validate ratios sum to 1.0
             total_ratio = training_ratio + validation_ratio + evaluation_ratio
@@ -130,29 +124,26 @@ class TemporalCrossValidation:
                 evaluation_ratio /= total_ratio
                 
             # calculate window sizes in data points
-            train_window_size = int(adj_points * training_ratio) // walk_throughs
-            val_window_size = int(adj_points * validation_ratio)
-            test_window_size = int(adj_points * evaluation_ratio)
+            train_window_size = int((num_gaf_imgs * training_ratio) / walk_throughs) - 1
+            val_window_size = int(num_gaf_imgs * validation_ratio)
+            test_window_size = int(num_gaf_imgs * evaluation_ratio)
             
             # calculate frame bounds for each walk-through
             train_bounds = []
             validation_bounds = []
             evaluation_bounds = []
             
-            walk_start = lookback_window
+            walk_start = 0
             for walk_idx in range(walk_throughs):
-                
                 train_start = walk_start
                 train_end = train_start + train_window_size
                 val_start = train_end + 1
                 val_end = val_start + val_window_size
                 test_start = val_end + 1
                 test_end = test_start + test_window_size
-                
                 train_bounds.append([train_start, train_end])
                 validation_bounds.append([val_start, val_end])
                 evaluation_bounds.append([test_start, test_end])
-                
                 walk_start = train_end + 1
             
             # aggregate bounds and return
@@ -205,7 +196,7 @@ class TemporalCrossValidation:
             
             # Step 5: aggregate results
             self.logger.info("Step 5: Aggregating results...")
-            aggregated_results = aggregate_cv_results(results)
+            aggregated_results = aggregate_cross_validation_results(results)
             
             self.logger.h1("Cross-Validation Experiment Completed")
             return aggregated_results
@@ -335,8 +326,10 @@ class TemporalCrossValidation:
     ) -> tuple:
         """Evaluate all checkpoints on validation set and return the best one"""
         
+        rl_models = {'PPO': PPO, 'A2C': A2C, 'DQN': DQN}
+        
         try:
-
+        
             # evaluate all checkpoints on validation
             self.logger.info("Evaluating checkpoints on validation set...")
             best_checkpoint = None
@@ -349,8 +342,7 @@ class TemporalCrossValidation:
                 if checkpoint_path:
                     checkpoint_num = os.path.basename(checkpoint_path).replace('checkpoint_', '').replace('.zip', '')
                     self.logger.info(f"Evaluating checkpoint {checkpoint_num}...")
-                    # Load the checkpoint
-                    rl_models = {'PPO': PPO, 'A2C': A2C, 'DQN': DQN}
+                    # load the checkpoint
                     model_class = rl_models[self.config.get('RL model')]
                     checkpoint_agent = VisualLearner(train_and_val_env, self.config)
                     checkpoint_agent.model = model_class.load(checkpoint_path, env=train_and_val_env.vec_environment)
@@ -362,7 +354,7 @@ class TemporalCrossValidation:
                 # evaluate on validation set
                 val_results = self.evaluate(eval_agent, train_and_val_env)
                 
-                # Calculate validation score (using average cumulative return across stocks)
+                # calculate validation score (using average cumulative return across stocks)
                 if val_results:
                     avg_cumulative_return = np.mean([
                         stock_metrics.get('cumulative return', 0)
@@ -379,9 +371,10 @@ class TemporalCrossValidation:
                         best_agent = eval_agent
                         best_validation_results = val_results
             
-            self.logger.info(f"Best checkpoint: {best_checkpoint or 'final model'} with validation score: {best_validation_score:.4f}")
+            self.logger.info(f"""Best checkpoint: {best_checkpoint or 'final model'} with 
+            validation score: {best_validation_score:.4f}""")
             
-            return best_checkpoint, best_agent, best_validation_results, validation_results_by_checkpoint
+            return best_agent
             
         except Exception as e:
             self.logger.error(f"Error selecting best checkpoint: {e}")
@@ -410,10 +403,12 @@ class TemporalCrossValidation:
             for ticker, monitor in train_and_val_env.environments.items():
                 env = monitor.env
                 env.frame_bound = (training_bounds[0], training_bounds[1])
+                env._start_tick = training_bounds[0]
+                env._end_tick = training_bounds[1]
                 env._process_data()
                 env.reset()
                 
-            # Step 2: train 
+            # Step 2: train with checkpoint saving
             self.logger.info("Training the model...")
             agent = VisualLearner(train_and_val_env, self.config)
             
@@ -423,8 +418,7 @@ class TemporalCrossValidation:
                 self.config.get('Model save path'),
                 f'fold_{fold_idx+1}_window_{window_idx+1}_checkpoints'
             )
-            
-            # train with checkpoint saving
+        
             agent.train(
                 checkpoint_save_path = checkpoint_dir,
                 checkpoint_freq = checkpoint_freq
@@ -442,11 +436,12 @@ class TemporalCrossValidation:
                 env = monitor.env
                 env.frame_bound = (validation_bounds[0], validation_bounds[1])
                 env._process_data()
+                env._start_tick = validation_bounds[0]
+                env._end_tick = validation_bounds[1]
                 env.reset()
             
             # Step 5: evaluate checkpoints and select best model
-            best_checkpoint, best_agent, best_validation_results, validation_results_by_checkpoint = \
-                self.select_best_checkpoint(
+            best_agent = self.select_best_checkpoint(
                     checkpoint_files = checkpoint_files,
                     agent = agent,
                     train_and_val_env = train_and_val_env,
@@ -456,6 +451,8 @@ class TemporalCrossValidation:
             for ticker, monitor in test_env.environments.items():
                 env = monitor.env
                 env.frame_bound = (evaluation_bounds[0], evaluation_bounds[1])
+                env._start_tick = evaluation_bounds[0]
+                env._end_tick = evaluation_bounds[1]
                 env._process_data()
                 env.reset()
                 
@@ -472,7 +469,6 @@ class TemporalCrossValidation:
             # Step 8: combine results and return 
             fold_window_results = {
                 'test results': test_results,
-                'validation results': best_validation_results,
                 'MACD results' : MACD_results,
                 'SignR results' : SignR_results,
                 'Buy and Hold results' : BuyAndHold_results,
@@ -512,7 +508,6 @@ class TemporalCrossValidation:
                 env = monitor.env
                 obs, info = env.reset() 
                 obs = obs[0] if isinstance(obs, tuple) else obs
-                data = environment.timeseries_data[stock]
 
                 # store initial portfolio value
                 initial_portfolio_factor = info.get('total_profit', 1.0)
@@ -532,6 +527,7 @@ class TemporalCrossValidation:
                     if strategy.strategy_type == 'Agent':
                         action, _ = strategy.model.predict(obs_batch, deterministic=deterministic)
                     if strategy.strategy_type == 'Benchmark':
+                        data = environment.timeseries_data[stock]
                         last_action = None if step_count == 0 else actions[step_count-1]
                         action = strategy.predict(data, last_action, step_count)
 
@@ -564,7 +560,7 @@ class TemporalCrossValidation:
                 # action distribution diagnostics
                 unique_actions, action_counts = np.unique(actions, return_counts = True)
                 action_distribution = dict(zip(unique_actions.tolist(), action_counts.tolist()))
-                
+                 
                 stock_metrics[stock] = {
                     'portfolio factors': portfolio_factors,
                     'episode reward': episode_reward,
@@ -595,6 +591,6 @@ if __name__ == "__main__":
     config = load_config(experiment_name)
     
     dev = TemporalCrossValidation(experiment_name, config)
-    dev.exe_experiment()
+    results = dev.exe_experiment()
     
     

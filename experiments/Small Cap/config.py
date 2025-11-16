@@ -9,47 +9,53 @@ EXPERIMENT_CONFIG = {
     'RL model': 'PPO', 
     'RL policy': 'MlpPolicy', 
     
-    # Stocks 
+    # Stocks --> Dow Jones Industrial Average
     'Tickers': [
-        'KO',
-        'SHW',
-        'AMGN',
-        'AMZN',
-        'AXP',
-        'BA',
-        'CAT',
-        'CRM',
-        'CSCO',
-        'AAPL',
-        'HON',
-        'MSFT',
-        'NVDA',
-        'TRV',
-        'UNH',
-        'VZ',
-        'WMT',
-        'V',
-        'MRK',
-        'NKE',
-        'PG',
-        'CVX',
-        'DIS',
-        'GS',
-        'HD',
-        'IBM',
-        'JNJ',
-        'JPM',
-        'MCD',
-        'MMM'
-    ],
+
+    "NVDA",
+    "AAPL",
+    "MSFT",
+    "AMZN",
+    "AVGO",
+    "TSLA",
+    "BRK.b",
+    "LLY",
+    "JPM",
+    "PLTR",
+    "V",
+    "MA",
+    "JNJ",
+    "ORCL",
+    "AMD",
+    "BAC",
+    "ABBV",
+    "HD",
+    "GE",
+    "UNH",
+    "IBM",
+    "MU",
+    "MS",
+    "CSCO",
+    "CAT",
+    "AXP",
+    "C",
+    "APP",
+    "WFC",
+    "RTX"
+    
+    ]
+
+
+
+
     
     # Time Series Date and Frequency Attributes
-    'Start date': '2000-01-01',
+    'Start date': '2004-01-01',
     'End date': '2024-12-31',
     'Update frequency': '1d',
 
     # Observation Space Parameters
-    'Lookback window': 10,
+    'Lookback window': 30,
 
     # OHLC Features
     'GAF features': ['Close', 'High', 'Low', 'Open', 'SMA', 'RSI' 'OBV'],

@@ -44,7 +44,6 @@ import random
 # Finance modules
 import yfinance as YF
 from finta import TA
-#import mplfinance as MPF
 
 # Image Processing Modules
 from pyts.image import GramianAngularField

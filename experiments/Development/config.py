@@ -15,43 +15,39 @@ EXPERIMENT_CONFIG = {
     # Reinforcement Learning Model
     'RL model': 'PPO', 
     'RL policy': 'CnnPolicy', 
-    'Lookback window': 5, # observation space lookback period
-    'Rollout steps' : 100, # trajectory collection size
-    'Batch size': 50,
-    'Deterministic' : False,
-    'Training epochs': 10,
-    'Learning rate': 0.01,
-    'Learning rate': 0.01,
+    'Lookback window': 7, # observation space lookback period
+    'Rollout steps' : 2048, # trajectory collection size
+    'Batch size': 64,
+    'Deterministic' : True,
+    'Training epochs': 1000, # total timesteps for training
+    'Actor learning rate': 0.001,
+    'Critic learning rate': 0.001,
+    
+    'Checkpoint frequency': 100,
+    'Model save path': f".\experiments\{experiment_name}\models", # model storage
     
     # ----------------------------------------------------------------
     # EXPERIMENT CONFIGURATION
     # ----------------------------------------------------------------
     
     # Time Series Date and Frequency Attributes
-    'Start date': '2015-01-01',
-    'End date': '2020-12-30',
+    'Start date': '2010-01-01',
+    'End date': '2022-12-30',
     'Update frequency': '1d',
     
     # K-Fold Cross Validation Parameters
     'Random seed': 42,
     'K folds': 5,
     'Stratification type': 'random',
-    'Checkpoint frequency': 100,
     
     # Temporal Walk-Forward Parameters
+    # note: the modulus of training ratio and walk throughs must equal 
+    # zero in order to get uniform training window sizes
     
-    # Note on settings:
-    # (1) the sum of evaluation/validation/training ratios must sum to 1
-    # (2) the modulus of training ratio and walk throughs must equal 0 in
-    # order to get uniform training window sizes
-    
-    'Evaluation ratio' : 0.20, # % data allocated to evaluation
-    'Validation ratio' : 0.05, # % data allocated to validation
-    'Training ratio' : 0.75, # % data allocated to training
-    'Walk throughs': 5, # number of walk-forwards per K-fold
-    
-    # Model Storage
-    'Model save path': f"./experiments/./{experiment_name}./models",
+    'Walk throughs': 5,         # # of walk-forwards per K-fold
+    'Evaluation ratio' : 0.20,  # % data allocated to evaluation
+    'Validation ratio' : 0.05,  # % data allocated to validation
+    'Training ratio' : 0.75,    # % data allocated to training
     
     # ----------------------------------------------------------------
     # DATASET CONFIGURATION
@@ -64,21 +60,21 @@ EXPERIMENT_CONFIG = {
         "MSFT",
         "AMZN",
         "AVGO",
-        # "TSLA",
-        # "AXP",
-        # "LLY",
-        # "JPM",
-        # "PLTR",
-        # 'TRV',
-        # 'UNH',
-        # 'VZ',
-        # 'WMT',
-        # 'V',
-        # 'MRK',
-        # 'NKE',
-        # 'PG',
-        # 'CVX',
-        # 'DIS',
+        "TSLA",
+        "AXP",
+        "LLY",
+        "JPM",
+        "PLTR",
+        'TRV',
+        'UNH',
+        'VZ',
+        'WMT',
+        'V',
+        'MRK',
+        'NKE',
+        'PG',
+        'CVX',
+        'DIS',
     ],
     
     # OHLC Features

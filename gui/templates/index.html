@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Vision Trading - Experiment Launcher</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Slab:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">Experiment Launcher</h1>
+                <p class="header-subtitle">Computer Vision Trading System</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Experiment Selection Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Experiment Selection</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="experiment-select" class="form-label">Select Experiment</label>
+                        <div class="select-wrapper">
+                            <select id="experiment-select" class="form-select">
+                                <option value="">Loading experiments...</option>
+                            </select>
+                            <button id="refresh-btn" class="btn btn-secondary" title="Refresh">
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons Card -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="button-group">
+                        <button id="run-btn" class="btn btn-primary btn-large">
+                            Run Experiment
+                        </button>
+                        <button id="clear-btn" class="btn btn-secondary">
+                            Clear Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Progress</h2>
+                </div>
+                <div class="card-body">
+                    <div class="progress-container">
+                        <div class="progress-bar-wrapper">
+                            <div id="progress-bar" class="progress-bar">
+                                <div id="progress-fill" class="progress-fill"></div>
+                            </div>
+                            <span id="progress-text" class="progress-text">0%</span>
+                        </div>
+                        <p id="status-text" class="status-text">Ready</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card results-card">
+                <div class="card-header">
+                    <h2 class="card-title">Results</h2>
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="summary">Summary</button>
+                        <button class="tab-btn" data-tab="plots">Plots</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Summary Tab -->
+                    <div id="summary-tab" class="tab-content active">
+                        <div id="summary-content" class="summary-content">
+                            <div class="empty-state">
+                                <p>No results available. Run an experiment to display results.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plots Tab -->
+                    <div id="plots-tab" class="tab-content">
+                        <div id="plots-content" class="plots-content">
+                            <div class="empty-state">
+                                <p>No visualizations available. Run an experiment to generate plots.</p>
+                            </div>
+                            <canvas id="results-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p class="loading-text">Processing...</p>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
+

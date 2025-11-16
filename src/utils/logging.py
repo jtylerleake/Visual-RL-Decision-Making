@@ -1,7 +1,7 @@
 
 from common.modules import os, sys, dt, time, Optional, logging, handlers
 
-PARENT_DIR = "experiment-configs"
+PARENT_DIR = "experiments"
 
 
 class ExperimentLogger:
@@ -18,7 +18,7 @@ class ExperimentLogger:
         self.run_id = run_id
         self.save_log_file = save_log_file
         
-        # Create unique logger name with run_id if provided
+        # create unique logger name with run_id if provided
         if run_id:
             logger_name = f"{name}__run_{run_id}"
         else:

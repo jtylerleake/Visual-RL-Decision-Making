@@ -91,7 +91,7 @@ def validate_config(experiment_name: str, config: Dict[str, Any]) -> bool:
 
 
 def get_available_experiments() -> List[str]:
-    """Retrieve all experiment config names from the experiment-configs dir"""
+    """Retrieve all experiment config names from the experiments  dir"""
     
     try:
         available_experiments = []
