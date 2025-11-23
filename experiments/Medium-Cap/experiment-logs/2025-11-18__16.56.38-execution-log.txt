@@ -1,1 +1,0 @@
-2025-11-18 16:56:38,710 - Medium-Cap - INFO - Loaded configuration for experiment: Medium-Cap
