@@ -5,7 +5,7 @@ from common.modules import USFederalHolidayCalendar
 from src.utils.logging import log_function_call, log_execution_time, get_logger
 
 REQUIRED_COLUMNS = ['Open', 'High', 'Low', 'Close', 'Volume']
-DATA_DIR = ".\\dataset-cache"
+DATA_DIR = ".\\dataset"
 
 
 class DataPipeline: 
@@ -669,31 +669,3 @@ class DataPipeline:
         self.logger.debug(f"Dataframe now has {len(trimmed_data.columns)} columns: {list(trimmed_data.columns)}")
         
         return trimmed_data
-    
-    
-    
-if __name__ == "__main__":
-    
-    my_api_key = 'Y9EJACE06U0N9CNV'
-     
-    from src.utils.configurations import load_config
-    
-    large_cap_experiment = "Large-Cap"
-    # medium_cap_experiment = "Medium-Cap"
-    # small_cap_experiment = "Small-Cap"
-    
-    large_cap_config = load_config(large_cap_experiment)
-    # medium_cap_config = load_config(medium_cap_experiment)
-    # small_cap_config = load_config(small_cap_experiment)
-    
-    
-    # Initialize with API key (or set ALPHA_VANTAGE_API_KEY environment variable)
-    inst = DataPipeline(large_cap_experiment)
-    inst.exe_data_pipeline(large_cap_config)
-    
-    # inst = DataPipeline(medium_cap_experiment, api_key='YOUR_API_KEY_HERE')
-    # inst.exe_data_pipeline(medium_cap_config)
-    
-    # inst = DataPipeline(small_cap_experiment, api_key='YOUR_API_KEY_HERE')
-    # inst.exe_data_pipeline(small_cap_config)
-

@@ -1,34 +1,27 @@
 #!/usr/bin/env python3
-"""
-Setup script for Computer Vision Trading Agents.
-"""
 
 from setuptools import setup, find_packages
 import os
 
-# Read the README file
 def read_readme():
     with open("README.md", "r", encoding="utf-8") as fh:
         return fh.read()
 
-# Read requirements
 def read_requirements():
     with open("requirements.txt", "r", encoding="utf-8") as fh:
         return [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="computer-vision-trading-agents",
+    name="visual-reinforcement-fin-decision-making",
     version="1.0.0",
     author="Tyler Leake",
-    author_email="jtylerleake10@gmail.com",
-    description="A sophisticated algorithmic trading system combining computer vision and machine learning",
+    description="An algorithmic trading system combining computer vision and machine learning",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/jtylerleake/computer-vision-trading-agents",
+    url="https://github.com/jtylerleake/visual-reinforcement-fin-decision-making",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
-        "Intended Audience :: Financial and Insurance Industry",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
@@ -77,9 +70,4 @@ setup(
         "financial-analysis",
         "quantitative-finance",
     ],
-    project_urls={
-        "Bug Reports": "https://github.com/yourusername/computer-vision-trading-agents/issues",
-        "Source": "https://github.com/yourusername/computer-vision-trading-agents",
-        "Documentation": "https://github.com/yourusername/computer-vision-trading-agents/wiki",
-    },
 )

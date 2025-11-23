@@ -127,16 +127,6 @@ dmypy.json
 .pyre/
 
 # Trading specific
-data/
-models/
-logs/
-results/
-runs/
-dataset/
-dataset-cache/
-*.csv
-*.parquet
-*.pickle
 
 # YOLO specific
 *.pt

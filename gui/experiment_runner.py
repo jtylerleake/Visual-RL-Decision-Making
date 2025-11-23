@@ -5,7 +5,7 @@ from src.utils.configurations import load_config, validate_config
 from src.utils.configurations import get_available_experiments
 from src.experiments.temporal_cross_validation import TemporalCrossValidation
 
-config_dir = "experiment-configs"
+config_dir = "experiments"
 
 
 class ExperimentRunner:

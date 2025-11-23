@@ -13,27 +13,22 @@ EXPERIMENT_CONFIG = {
     # MODEL CONFIGURATION
     # ----------------------------------------------------------------
     
-    # Visual Reinforcement Learning Model
-    'RL model': 'PPO', 
-    'RL policy': 'CnnPolicy', 
+    # RL Models
+    'Rollout steps' : 16,
+    'Batch size': 4,
+    'Training epochs': 10, # total timesteps for training
     'Lookback window': 7,   # observation space lookback period
-    'Rollout steps' : 104,
-    'Batch size': 8,
     'Deterministic' : True,
-    'Training epochs': 5, # total timesteps for training
     'Learning rate': 0.001,
     
-    'Checkpoint frequency': 100,
-    'Model save path': os.path.join('experiments', experiment_name, 'models'), # model storage
+    # Checkpoint variables
+    'Checkpoint frequency': 10,
+    'Visual agent save path': f".\experiments\{experiment_name}\\visual_models",
+    'Numeric agent save path': f".\experiments\{experiment_name}\\numeric_models", 
     
     # ----------------------------------------------------------------
     # EXPERIMENT CONFIGURATION
     # ----------------------------------------------------------------
-    
-    # Time Series Date and Frequency Attributes
-    'Start date': '2015-01-01',
-    'End date': '2020-12-30',
-    'Update frequency': '1d',
     
     # K-Fold Cross Validation Parameters
     'K folds': 5,
@@ -43,7 +38,7 @@ EXPERIMENT_CONFIG = {
     # note: the modulus of training ratio and walk throughs must equal 
     # zero in order to get uniform training window sizes
     
-    'Walk throughs': 3,         # # of walk-forwards per K-fold
+    'Walk throughs': 5,         # # of walk-forwards per K-fold
     'Evaluation ratio' : 0.20,  # % data allocated to evaluation
     'Validation ratio' : 0.05,  # % data allocated to validation
     'Training ratio' : 0.75,    # % data allocated to training
@@ -52,16 +47,33 @@ EXPERIMENT_CONFIG = {
     # DATASET CONFIGURATION
     # ----------------------------------------------------------------
     
+    # Time Series Date and Frequency Attributes
+    'Start date': '2020-01-01',
+    'End date': '2024-12-30',
+    'Update frequency': '1d',
+    
     # OHLC Features
-    'GAF features': ['Close', 'High', 'Low', 'Open', 'Volume', 'SMA', 'RSI', 'OBV'],
-    'GAF target': 'Close',
-    'GAF timeseries periods': 14, # historical periods in a single gaf image
+    'Features': ['Close', 'High', 'Low', 'Open', 'Volume', 'SMA', 'RSI', 'OBV'],
+    'Target': 'Close',
+    'GAF periods': 14, # historical periods in a single gaf image
 
     # Technical Indicator Features
     'SMA periods': 20,
     'RSI periods': 14,
 
     # Stocks
-    'Tickers' : ['A', 'AAPL', 'ABBV', 'AMZN', 'ABT', 'ACN', 'ADBE', 'ADI', 'ADP', 'AMAT']
+    'Tickers' : [
+        
+        'BIIB', 
+        'BRO', 
+        'FE', 
+        'PPL', 
+        'STE', 
+        'ADM', 
+        'CSGP', 
+        'EL', 
+        'NUE', 
+        'RJF'
+    ]
        
 }

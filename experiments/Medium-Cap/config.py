@@ -13,27 +13,22 @@ EXPERIMENT_CONFIG = {
     # MODEL CONFIGURATION
     # ----------------------------------------------------------------
     
-    # Visual Reinforcement Learning Model
-    'RL model': 'PPO', 
-    'RL policy': 'CnnPolicy', 
-    'Lookback window': 7,   # observation space lookback period
+    # RL Models
     'Rollout steps' : 2048,
     'Batch size': 64,
+    'Training epochs': 1000,  # total timesteps for training
+    'Lookback window': 7,   # observation space lookback period
     'Deterministic' : True,
-    'Training epochs': 1000, # total timesteps for training
     'Learning rate': 0.001,
     
+    # Checkpoint variables
     'Checkpoint frequency': 100,
-    'Model save path': f".\experiments\{experiment_name}\models", # model storage
+    'Visual agent save path': f".\experiments\{experiment_name}\\visual_models",
+    'Numeric agent save path': f".\experiments\{experiment_name}\\numeric_models", 
     
     # ----------------------------------------------------------------
     # EXPERIMENT CONFIGURATION
     # ----------------------------------------------------------------
-    
-    # Time Series Date and Frequency Attributes
-    'Start date': '1994-01-01',
-    'End date': '2025-09-30',
-    'Update frequency': '1d',
     
     # K-Fold Cross Validation Parameters
     'K folds': 5,
@@ -52,16 +47,21 @@ EXPERIMENT_CONFIG = {
     # DATASET CONFIGURATION
     # ----------------------------------------------------------------
     
+    # Time Series Date and Frequency Attributes
+    'Start date': '2004-01-01',
+    'End date': '2024-12-30',
+    'Update frequency': '1d',
+    
     # OHLC Features
-    'GAF features': ['Close', 'High', 'Low', 'Open', 'Volume', 'SMA', 'RSI', 'OBV'],
-    'GAF target': 'Close',
-    'GAF timeseries periods': 14, # historical periods in a single gaf image
+    'Features': ['Close', 'High', 'Low', 'Open', 'Volume', 'SMA', 'RSI', 'OBV'],
+    'Target': 'Close',
+    'GAF periods': 14, # historical periods in a single gaf image
 
     # Technical Indicator Features
     'SMA periods': 20,
     'RSI periods': 14,
 
     # Stocks
-    'Tickers' : ['FOX', 'EXE', 'PPL', 'BR', 'FE', 'FSLR', 'BRO', 'BIIB', 'CBOE', 'STE', 'NRG', 'VRSK', 'NUE', 'RJF', 'GEHC', 'CSGP', 'EL', 'ADM', 'VICI', 'STT', 'EQT', 'AMP', 'RMD', 'A', 'HSY', 'ROK', 'DHI', 'EBAY', 'VTR', 'VMC', 'GWW', 'LVS', 'OKE', 'D', 'PSA', 'URI', 'CBRE', 'MPWR', 'MSCI', 'NXPI', 'KMI', 'FDX', 'AFL', 'SRE', 'MPC', 'SPG', 'TFC', 'VST', 'PYPL', 'HLT']
+    'Tickers' : ['BIIB', 'BRO', 'FE', 'PPL', 'STE', 'ADM', 'CSGP', 'EL', 'NUE', 'RJF', 'STT', 'A', 'DHI', 'EBAY', 'EQT', 'HSY', 'RMD', 'ROK', 'VMC', 'VTR', 'D', 'GWW', 'OKE', 'PSA', 'URI', 'AFL', 'FDX', 'SPG', 'SRE', 'TFC', 'TSCO', 'FITB', 'MCHP', 'ROL', 'MTB', 'CTSH', 'WAB', 'CCL', 'ACGL', 'YUM', 'ROST', 'ROP', 'EA', 'PCAR', 'XEL', 'CMI', 'MSI', 'ADSK', 'ALL', 'NSC']
        
 }
