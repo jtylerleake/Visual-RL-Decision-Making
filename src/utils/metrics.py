@@ -942,27 +942,28 @@ def aggregate_cross_validation_results(cv_results: Dict) -> Dict:
 
 
 def compute_performance_metrics(
-        portfolio_factors: List[float],
-        start_date: str, 
-        end_date: str,
-        sig_figs: int = 4,
-    )-> Dict[str, float]:
+    portfolio_factors,
+    start_date,
+    end_date,
+    sig_figs: int = 4,
+)-> Dict[str, float]:
     """Compute experiment evaluation metrics for window/fold test environment"""
     
     risk_free_rate = 0.02 # baseline discount rate
     
-    # annualization factor
+    # compute annualization factor
     start_date = dt.strptime(start_date, '%Y-%m-%d')
     end_date = dt.strptime(end_date, '%Y-%m-%d')
-    days_difference = (end_date - start_date).days
-    annualization_factor = days_difference / 365.25
+    annualization_factor = ((end_date - start_date).days) / 365.25
 
-    # return figures for metric calculation
+    # stage return figures for metric calculation
     portfolio_factors = np.array(portfolio_factors, dtype=np.float64)
     interval_returns = np.diff(portfolio_factors) / portfolio_factors[:-1]
     interval_returns = interval_returns[~np.isnan(interval_returns)]
     excess_returns = interval_returns - risk_free_rate
     downside_returns = excess_returns[interval_returns < 0]
+    
+    # compute mean and std metrics
     std_interval_returns = np.std(interval_returns)
     std_downside_returns = np.std(downside_returns)
     avg_excess_return = np.mean(excess_returns)
@@ -971,11 +972,13 @@ def compute_performance_metrics(
     cumulative_return = (portfolio_factors[-1] - portfolio_factors[0]) / portfolio_factors[0]
     annualized_return = (1 + cumulative_return) ** annualization_factor - 1
 
-    # sharpe and sortino ratios
+    # sharpe ratio
     if std_interval_returns > 0:
         sharpe_ratio = avg_excess_return / std_interval_returns
     else:
         sharpe_ratio = 0.0
+        
+    # sortino ratio
     if len(downside_returns) > 0 and std_downside_returns > 0:
         sortino_ratio = avg_excess_return / std_downside_returns
     else:
@@ -987,9 +990,9 @@ def compute_performance_metrics(
     max_drawdown = np.max(drawdowns) if len(drawdowns) > 0 else 0.0
     
     return {
-        'cumulative_return': round(float(cumulative_return), sig_figs),
-        'annualized_cumulative_return': round(float(annualized_return), sig_figs),
-        'sharpe_ratio': round(float(sharpe_ratio), sig_figs),
-        'sortino_ratio': round(float(sortino_ratio), sig_figs),
-        'max_drawdown': round(float(max_drawdown), sig_figs)
+        'cumulative return': round(float(cumulative_return), sig_figs),
+        'annualized cumulative return': round(float(annualized_return), sig_figs),
+        'sharpe ratio': round(float(sharpe_ratio), sig_figs),
+        'sortino ratio': round(float(sortino_ratio), sig_figs),
+        'max drawdown': round(float(max_drawdown), sig_figs)
     }

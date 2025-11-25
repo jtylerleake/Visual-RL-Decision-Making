@@ -283,10 +283,10 @@ class TemporalCrossValidation:
             
             # Compute metrics
             metrics = compute_performance_metrics(
-                portfolio_factors=portfolio_factors,
-                start_date=self.config.get('Start date'),
-                end_date=self.config.get('End date'),
-                sig_figs=4
+                portfolio_factors = portfolio_factors,
+                start_date = self.config.get('Start date'),
+                end_date = self.config.get('End date'),
+                sig_figs = 4
             )
             
             unique_actions, action_counts = np.unique(actions, return_counts=True)
@@ -297,11 +297,11 @@ class TemporalCrossValidation:
                 'actions': actions,
                 'action distribution': dict(zip(unique_actions.tolist(), action_counts.tolist())),
                 'num steps': step_count,
-                'cumulative return': metrics['cumulative_return'],
-                'annualized return': metrics['annualized_cumulative_return'],
-                'sharpe ratio': metrics['sharpe_ratio'],
-                'sortino ratio': metrics['sortino_ratio'],
-                'max drawdown': metrics['max_drawdown'],
+                'cumulative return': metrics['cumulative return'],
+                'annualized return': metrics['annualized cumulative return'],
+                'sharpe ratio': metrics['sharpe ratio'],
+                'sortino ratio': metrics['sortino ratio'],
+                'max drawdown': metrics['max drawdown'],
             }
         
         return stock_metrics
@@ -480,7 +480,7 @@ if __name__ == "__main__":
 
     mini_config = load_config('Mini')
     mini_experiment = TemporalCrossValidation('Mini', mini_config)
-    mini_experiment.exe_experiment('training')
+    mini_experiment.exe_experiment('inference')
 
     '''
     large_cap_config = load_config('Large-Cap')

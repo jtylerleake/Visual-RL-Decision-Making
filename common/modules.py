@@ -51,6 +51,8 @@ from sklearn.preprocessing import MinMaxScaler
 from PIL import Image
 
 # Machine Learning Modules
+# Workaround for torch._dynamo circular import issue with PyTorch 2.6.0+
+os.environ.setdefault('TORCH_COMPILE_DISABLE', '1')
 import torch
 import torch.nn as nn
 import torch.optim as optim
