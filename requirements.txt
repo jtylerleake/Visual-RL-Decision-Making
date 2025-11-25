@@ -28,14 +28,11 @@ flake8==6.0.0
 # Computer Vision and RL Libs
 # torch==2.0.1
 # torchvision==0.15.2
-# ultralytics==8.0.196
-# scikit-learn==1.3.0
-# pyts==0.12.0
-# Pillow==10.0.0
-# gymnasium==0.29.1
-# gym-anytrading==0.1.0
-# stable-baselines3==2.1.0
-# optuna==3.4.0
-# gym==0.26.2 # NOT gymnasium
-# gym-anytrading==1.3.2
-# stable-baselines3==1.8.0
+ultralytics==8.0.196
+scikit-learn==1.3.0
+pyts==0.12.0
+Pillow==10.0.0
+optuna==3.4.0
+gym==0.26.2
+gym-anytrading==1.3.2
+stable-baselines3==2.7.0
