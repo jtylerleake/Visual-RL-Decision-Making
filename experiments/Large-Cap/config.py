@@ -20,6 +20,14 @@ EXPERIMENT_CONFIG = {
     'Lookback window': 7,   # observation space lookback period
     'Deterministic' : True,
     'Learning rate': 0.001,
+    'Gamma': 0.99, 
+    'GAE lambda': 0.95,     
+    'Clip range': 0.2,      
+    'Entropy coefficient': 0.0,       
+    'VF coefficient': 0.5,      
+    'Max grad norm': 0.5,     
+    'Epochs': 10,         
+    'Feature dim': 256, 
     
     # Checkpoint variables
     'Checkpoint frequency': 100,
@@ -63,3 +71,4 @@ EXPERIMENT_CONFIG = {
     
     'Tickers' : ['AZO', 'CI', 'EMR', 'RCL', 'AEP', 'TRV', 'WMB', 'PWR', 'AMT', 'CDNS', 'GD', 'MMC', 'NEM', 'ORLY', 'SO', 'TT', 'DHR', 'GILD', 'HON', 'PLD', 'SYK', 'TXN', 'ABT', 'AMAT', 'AMGN', 'CAT', 'DIS', 'GS', 'T', 'TMO', 'AAPL', 'BRK.B', 'MU', 'ORCL', 'WFC', 'WMT', 'MAR', 'REGN', 'MCK', 'PH', 'KLAC', 'ETN', 'SPGI', 'UNP', 'MS', 'RTX', 'HD', 'PG', 'MSFT', 'JNJ']
 }
+

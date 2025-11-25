@@ -43,6 +43,13 @@ class NumericAgent(BaseStrategy):
             learning_rate = self.config.get('Learning rate'),
             batch_size = self.config.get('Batch size'),
             n_steps = self.config.get('Rollout steps'),
+            gamma = self.config.get('Gamma', 0.99),
+            gae_lambda = self.config.get('GAE lambda', 0.95),
+            clip_range = self.config.get('Clip range', 0.2),
+            ent_coef = self.config.get('Entropy coefficient', 0.0),
+            vf_coef = self.config.get('VF coefficient', 0.5),
+            max_grad_norm = self.config.get('Max grad norm', 0.5),
+            n_epochs = self.config.get('Epochs', 10),
             device = "auto",
             verbose = 1
         )

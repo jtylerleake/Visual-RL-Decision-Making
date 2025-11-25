@@ -20,6 +20,14 @@ EXPERIMENT_CONFIG = {
     'Lookback window': 7,   # observation space lookback period
     'Deterministic' : True,
     'Learning rate': 0.001,
+    'Gamma': 0.99, 
+    'GAE lambda': 0.95,     
+    'Clip range': 0.2,      
+    'Entropy coefficient': 0.0,       
+    'VF coefficient': 0.5,      
+    'Max grad norm': 0.5,     
+    'Epochs': 10,         
+    'Feature dim': 256, 
     
     # Checkpoint variables
     'Checkpoint frequency': 100,
@@ -60,6 +68,7 @@ EXPERIMENT_CONFIG = {
     # Technical Indicator Features
     'SMA periods': 20,
     'RSI periods': 14,
+    
     # Stocks
     'Tickers' : ['ARE', 'APA', 'AVY', 'BALL', 'BAX', 'BBY', 'CHRW', 'CPT', 'DRI', 'DECK', 'ESS', 'FFIV', 'FRT', 'HAS', 'HPQ', 'INCY', 'IFF', 'IP', 'JBHT', 'LH', 'MAA', 'NTAP', 'NDSN', 'NTRS', 'NVR', 'PNW', 'PPG', 'PTC', 'PHM', 'RVTY', 'SWK', 'TROW', 'TXT', 'COO', 'TRMB', 'TYL', 'UHS', 'WAT', 'WST', 'CPB', 'IPG', 'TAP', 'MGM', 'BXP', 'SNA', 'LII', 'KIM', 'GPC', 'STLD', 'VRSN']
        

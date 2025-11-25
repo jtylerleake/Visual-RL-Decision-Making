@@ -14,15 +14,23 @@ EXPERIMENT_CONFIG = {
     # ----------------------------------------------------------------
     
     # RL Models
-    'Rollout steps' : 16,
-    'Batch size': 4,
-    'Training epochs': 10, # total timesteps for training
+    'Rollout steps' : 2048,
+    'Batch size': 64,
+    'Training epochs': 1000,  # total timesteps for training
     'Lookback window': 7,   # observation space lookback period
     'Deterministic' : True,
     'Learning rate': 0.001,
+    'Gamma': 0.99, 
+    'GAE lambda': 0.95,     
+    'Clip range': 0.2,      
+    'Entropy coefficient': 0.0,       
+    'VF coefficient': 0.5,      
+    'Max grad norm': 0.5,     
+    'Epochs': 10,         
+    'Feature dim': 256, 
     
     # Checkpoint variables
-    'Checkpoint frequency': 10,
+    'Checkpoint frequency': 100,
     'Visual agent save path': f".\experiments\{experiment_name}\\visual_models",
     'Numeric agent save path': f".\experiments\{experiment_name}\\numeric_models", 
     
@@ -48,7 +56,7 @@ EXPERIMENT_CONFIG = {
     # ----------------------------------------------------------------
     
     # Time Series Date and Frequency Attributes
-    'Start date': '2020-01-01',
+    'Start date': '2004-01-01',
     'End date': '2024-12-30',
     'Update frequency': '1d',
     
@@ -60,7 +68,7 @@ EXPERIMENT_CONFIG = {
     # Technical Indicator Features
     'SMA periods': 20,
     'RSI periods': 14,
-
+    
     # Stocks
     'Tickers' : [
         
