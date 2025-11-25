@@ -18,10 +18,16 @@ pyts==0.12.0
 Pillow==10.0.0
 
 # Reinforcement Learning
+<<<<<<< HEAD
 gymnasium==0.29.1
 gym-anytrading==0.1.0
 stable-baselines3==2.1.0
 optuna==3.4.0
+=======
+gym==0.26.2 # NOT gymnasium
+gym-anytrading==1.3.2
+stable-baselines3==1.8.0
+>>>>>>> 58d396ee7064d546a377408f1c264f0a4906f6c3
 
 # Web Application
 flask==2.3.2
