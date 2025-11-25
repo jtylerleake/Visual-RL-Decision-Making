@@ -478,6 +478,11 @@ if __name__ == "__main__":
     
     from src.utils.configurations import load_config
 
+    mini_config = load_config('Mini')
+    mini_experiment = TemporalCrossValidation('Mini', mini_config)
+    mini_experiment.exe_experiment('training')
+
+    '''
     large_cap_config = load_config('Large-Cap')
     medium_cap_config = load_config('Medium-Cap')
     small_cap_config = load_config('Small-Cap')
@@ -489,4 +494,5 @@ if __name__ == "__main__":
     large_cap_experiment.exe_experiment('training')
     medium_cap_experiment.exe_experiment('training')
     small_cap_experiment.exe_experiment('training')
+    '''
     
