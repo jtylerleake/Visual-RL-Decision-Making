@@ -35,6 +35,39 @@ EXPERIMENT_CONFIG = {
     'Numeric agent save path': f".\experiments\{experiment_name}\\numeric_models", 
     
     # ----------------------------------------------------------------
+    # AGENT-SPECIFIC HYPERPARAMETERS (from hyperparameter tuning)
+    # ----------------------------------------------------------------
+    
+    # Visual Agent Hyperparameters
+    'Visual agent hyperparameters': {
+        'Learning rate': 0.0004803451981619835,
+        'Batch size': 64,
+        'Rollout steps': 1280,
+        'Gamma': 0.9455662787843444,
+        'GAE lambda': 0.9075020500047098,
+        'Clip range': 0.22685009929852115,
+        'Entropy coefficient': 0.003963669759659864,
+        'VF coefficient': 0.2625257871626315,
+        'Max grad norm': 0.9177826027374991,
+        'Epochs': 3,
+        'Feature dim': 256
+    },
+    
+    # Numeric Agent Hyperparameters (not yet tuned - using defaults)
+    'Numeric agent hyperparameters': {
+        'Learning rate': 0.001,
+        'Batch size': 64,
+        'Rollout steps': 2048,
+        'Gamma': 0.99,
+        'GAE lambda': 0.95,
+        'Clip range': 0.2,
+        'Entropy coefficient': 0.0,
+        'VF coefficient': 0.5,
+        'Max grad norm': 0.5,
+        'Epochs': 10
+    },
+    
+    # ----------------------------------------------------------------
     # EXPERIMENT CONFIGURATION
     # ----------------------------------------------------------------
     

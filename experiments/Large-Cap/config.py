@@ -14,25 +14,46 @@ EXPERIMENT_CONFIG = {
     # ----------------------------------------------------------------
     
     # RL Models
-    'Rollout steps' : 2048,
-    'Batch size': 64,
-    'Training epochs': 1000,  # total timesteps for training
     'Lookback window': 7,   # observation space lookback period
     'Deterministic' : True,
-    'Learning rate': 0.001,
-    'Gamma': 0.99, 
-    'GAE lambda': 0.95,     
-    'Clip range': 0.2,      
-    'Entropy coefficient': 0.0,       
-    'VF coefficient': 0.5,      
-    'Max grad norm': 0.5,     
-    'Epochs': 10,         
-    'Feature dim': 256, 
-    
+
     # Checkpoint variables
     'Checkpoint frequency': 100,
     'Visual agent save path': f".\experiments\{experiment_name}\\visual_models",
     'Numeric agent save path': f".\experiments\{experiment_name}\\numeric_models", 
+    
+    # ----------------------------------------------------------------
+    # AGENT-SPECIFIC HYPERPARAMETERS (from hyperparameter tuning)
+    # ----------------------------------------------------------------
+    
+    # Visual Agent Hyperparameters
+    'Visual agent hyperparameters': {
+        'Learning rate': 0.0017513990778672951,
+        'Batch size': 32,
+        'Rollout steps': 2816,
+        'Gamma': 0.9067390630376122,
+        'GAE lambda': 0.8252833692036996,
+        'Clip range': 0.13219658093665856,
+        'Entropy coefficient': 5.341336091267625e-08,
+        'VF coefficient': 0.10887409930876644,
+        'Max grad norm': 0.722506417205221,
+        'Epochs': 9,
+        'Feature dim': 256
+    },
+    
+    # Numeric Agent Hyperparameters
+    'Numeric agent hyperparameters': {
+        'Learning rate': 1.0426317556898562e-05,
+        'Batch size': 128,
+        'Rollout steps': 3072,
+        'Gamma': 0.9936267929071911,
+        'GAE lambda': 0.8024631572035075,
+        'Clip range': 0.25003219244480845,
+        'Entropy coefficient': 1.2492665661830034e-08,
+        'VF coefficient': 0.3916052035670908,
+        'Max grad norm': 0.9992862769690893,
+        'Epochs': 16
+    },
     
     # ----------------------------------------------------------------
     # EXPERIMENT CONFIGURATION

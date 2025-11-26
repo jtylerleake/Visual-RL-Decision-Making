@@ -31,6 +31,16 @@ class VisualAgent(BaseStrategy):
         self.env = environment.image_vec_environment
         self.model = self.setup_model()
 
+    def _get_hyperparameter(self, key: str, default=None):
+        """
+        Get hyperparameter value, checking agent-specific config first,
+        then falling back to general config.
+        """
+        visual_hyperparams = self.config.get('Visual agent hyperparameters', {})
+        if key in visual_hyperparams:
+            return visual_hyperparams[key]
+        return self.config.get(key, default)
+
     def setup_model(
         self, 
     ) -> None:
@@ -38,8 +48,8 @@ class VisualAgent(BaseStrategy):
         model = PPO
         policy = 'CnnPolicy'
 
-        # get features_dim from config, default to 256 if not present
-        features_dim = self.config.get('Feature dim', 256)
+        # get features_dim from agent-specific config, default to 256 if not present
+        features_dim = self._get_hyperparameter('Feature dim', 256)
 
         policy_kwargs = dict(
             features_extractor_class = GAFExtractor,
@@ -49,16 +59,16 @@ class VisualAgent(BaseStrategy):
         agent = model(
             policy,
             env = self.env, 
-            learning_rate = self.config.get('Learning rate'),
-            batch_size = self.config.get('Batch size'),
-            n_steps = self.config.get('Rollout steps'),
-            gamma = self.config.get('Gamma', 0.99),
-            gae_lambda = self.config.get('GAE lambda', 0.95),
-            clip_range = self.config.get('Clip range', 0.2),
-            ent_coef = self.config.get('Entropy coefficient', 0.0),
-            vf_coef = self.config.get('VF coefficient', 0.5),
-            max_grad_norm = self.config.get('Max grad norm', 0.5),
-            n_epochs = self.config.get('Epochs', 10),
+            learning_rate = self._get_hyperparameter('Learning rate'),
+            batch_size = self._get_hyperparameter('Batch size'),
+            n_steps = self._get_hyperparameter('Rollout steps'),
+            gamma = self._get_hyperparameter('Gamma', 0.99),
+            gae_lambda = self._get_hyperparameter('GAE lambda', 0.95),
+            clip_range = self._get_hyperparameter('Clip range', 0.2),
+            ent_coef = self._get_hyperparameter('Entropy coefficient', 0.0),
+            vf_coef = self._get_hyperparameter('VF coefficient', 0.5),
+            max_grad_norm = self._get_hyperparameter('Max grad norm', 0.5),
+            n_epochs = self._get_hyperparameter('Epochs', 10),
             device = "auto",
             verbose = 1, 
             policy_kwargs = policy_kwargs
