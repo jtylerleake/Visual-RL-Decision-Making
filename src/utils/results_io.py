@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 def _convert_numpy_types(obj):
-    """Recursively convert numpy types to native Python types for JSON serialization"""
+    """Recursively convert np types to native python types for JSON serialization"""
     if isinstance(obj, np.integer):
         return int(obj)
     elif isinstance(obj, np.floating):
@@ -31,58 +31,15 @@ def save_results(
     results: Dict,
     experiment_name: str,
     filepath: str = None,
-    format: str = 'pickle',
+    format: str = 'json',
     compress: bool = True,
     run_id: int = None
 ) -> str:
-    """
-    Save experiment results dictionary to file.
-    
-    Parameters:
-    -----------
-    results : Dict
-        Results dictionary from temporal cross-validation experiment
-    experiment_name : str
-        Name of the experiment
-    filepath : str, optional
-        Full path to save file. If None, generates automatic filename.
-    format : str
-        File format: 'pickle' (default, preserves all types) or 'json' (portable, converts numpy)
-    compress : bool
-        Whether to compress the file (only for pickle format)
-    run_id : int, optional
-        Run ID to include in filename
-        
-    Returns:
-    --------
-    str
-        Path to saved file
-    """
+    """Save experiment results to pickle/json file"""
     logger = get_logger(experiment_name, run_id=run_id)
     
     try:
-        # Generate filepath if not provided
-        if filepath is None:
-            results_dir = os.path.join("experiments", experiment_name, "results")
-            os.makedirs(results_dir, exist_ok=True)
-            
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            if run_id is not None:
-                base_filename = f"run_{run_id}__{timestamp}"
-            else:
-                base_filename = timestamp
-            
-            if format == 'pickle':
-                if compress:
-                    filepath = os.path.join(results_dir, f"{base_filename}-results.pkl.gz")
-                else:
-                    filepath = os.path.join(results_dir, f"{base_filename}-results.pkl")
-            elif format == 'json':
-                filepath = os.path.join(results_dir, f"{base_filename}-results.json")
-            else:
-                raise ValueError(f"Unsupported format: {format}. Use 'pickle' or 'json'")
         
-        # Save based on format
         if format == 'pickle':
             if compress:
                 with gzip.open(filepath, 'wb') as f:
@@ -90,15 +47,14 @@ def save_results(
             else:
                 with open(filepath, 'wb') as f:
                     pickle.dump(results, f, protocol=pickle.HIGHEST_PROTOCOL)
-            logger.info(f"Results saved to {filepath} (pickle format, {'compressed' if compress else 'uncompressed'})")
+            logger.info(f"Results saved to {filepath}")
             
         elif format == 'json':
-            # Convert numpy types to native Python types
+            # convert numpy types to native python types
             json_results = _convert_numpy_types(results)
-            
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(json_results, f, indent=2, ensure_ascii=False)
-            logger.info(f"Results saved to {filepath} (JSON format)")
+            logger.info(f"Results saved to {filepath}")
         
         return filepath
         
@@ -112,21 +68,7 @@ def load_results(
     filepath: str,
     experiment_name: str = None
 ) -> Dict:
-    """
-    Load experiment results from file.
-    
-    Parameters:
-    -----------
-    filepath : str
-        Path to the results file
-    experiment_name : str, optional
-        Name of the experiment (for logging)
-        
-    Returns:
-    --------
-    Dict
-        Loaded results dictionary
-    """
+
     logger = get_logger(experiment_name) if experiment_name else get_logger("load_results")
     
     try:
@@ -171,21 +113,7 @@ def get_latest_results(
     experiment_name: str,
     format: str = 'pickle'
 ) -> str:
-    """
-    Get the path to the most recently saved results file for an experiment.
-    
-    Parameters:
-    -----------
-    experiment_name : str
-        Name of the experiment
-    format : str
-        Format to look for: 'pickle' or 'json'
-        
-    Returns:
-    --------
-    str
-        Path to the latest results file, or None if not found
-    """
+
     results_dir = os.path.join("experiments", experiment_name, "results")
     
     if not os.path.exists(results_dir):

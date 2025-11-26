@@ -17,7 +17,7 @@ class MACD (BaseStrategy):
     def __init__(
         self, 
         fast_period = 12, 
-        slow_period = 26, 
+        slow_period = 26,
         signal_period = 9,
     ) -> None:
 
@@ -37,10 +37,8 @@ class MACD (BaseStrategy):
         last_action: None,
         step_count: int
     ) -> int:
-        """
-        Compute MACD technical indicator for timeseries data and predict action 
-        based on computed signals. Returns 0 = sell and 1 = buy. 
-        """
+        """Compute MACD technical indicator for timeseries data and predict action 
+        based on computed signals. Returns 0 = sell and 1 = buy"""
 
         last_action = 0 if last_action == None else last_action
 
@@ -100,9 +98,7 @@ class SignR(BaseStrategy):
         last_action: None,
         step_count: int
     ) -> int:
-        """
-        Predict action based on sign of returns. Returns 0 = sell, 1 = buy
-        """
+        """Predict action based on sign of returns. Returns 0 = sell, 1 = buy"""
         
         last_action = 0 if last_action is None else last_action
         
@@ -126,34 +122,29 @@ class SignR(BaseStrategy):
             return last_action
 
 
-class BuyAndHold(BaseStrategy):
+class Long(BaseStrategy):
     
-    """
-    Buy and Hold strategy: buy at first step, then hold thereafter
-    """
+    """Buy and hold strategy: buy at first step ands hold thereafter"""
     
     def __init__(self) -> None:
         super().__init__(
-            strategy_name='Buy and Hold',
-            strategy_type='Benchmark'
+            strategy_name = 'Long',
+            strategy_type = 'Benchmark'
         )
     
     def predict(
         self,
-        price_data: pd.DataFrame,
-        last_action: None,
-        step_count: int
+        price_data,
+        last_action,
+        step_count,
     ) -> int:
-        """Buy at step 0, then hold. Returns 0=sell, 1=buy"""
         return 1
 
 
 class Random(BaseStrategy):
     
-    """
-    Random strategy: randomly choose buy or sell at each step
-    """
-    
+    """Random strategy: randomly choose buy or sell at each step"""
+
     def __init__(self, seed = None) -> None:
         super().__init__(
             strategy_name='Random',

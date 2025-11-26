@@ -564,25 +564,6 @@ def convert_to_latex_table(
     save_path: str = None
 ) -> str:
     """
-    Convert aggregated cross-validation results to LaTeX table format.
-    
-    Parameters:
-    -----------
-    aggregated_results : Dict, optional
-        Output from aggregate_cross_validation_results. If provided and cap_results is None,
-        the same data will be used for all three cap sections.
-    cap_results : Dict[str, Dict], optional
-        Dictionary with keys 'Large Cap', 'Medium Cap', 'Small Cap' mapping to
-        aggregated_results dictionaries. If provided, this takes precedence over aggregated_results.
-    decimal_places : int
-        Number of decimal places to display (default: 3)
-    save_path : str, optional
-        Path to save the LaTeX table. If None, returns the string.
-    
-    Returns:
-    --------
-    str
-        LaTeX table code as a string
     """
     try:
         # Strategy name mapping for table display
@@ -792,153 +773,137 @@ def _compute_stats(values: List[float]) -> Dict[str, float]:
     }
 
 
-def aggregate_cross_validation_results(cv_results: Dict) -> Dict:
-    """
-
-    """
+def aggregate_results(cv_results: Dict) -> Dict:
+    """Aggregate temporal cross-validation results fold-wise and window-wise"""
     
     try:
-        # Strategy name mapping: normalize from 'macd results' -> 'macd'
         strategy_mapping = {
-            'macd results': 'macd',
-            'signr results': 'signr',
-            'buyandhold results': 'buyandhold',
-            'random results': 'random'
+            'Visual agent results': 'Visual agent',
+            'Numeric agent results': 'Numeric agent',
+            'MACD results': 'MACD',
+            'SignR results': 'SignR',
+            'Long results': 'Long',
+            'Random results': 'Random'
         }
         
-        # Metric name mapping: normalize from dict keys to standard names
-        metric_mapping = {
-            'episode reward': 'episode_reward',
-            'cumulative return': 'cumulative_return',
-            'annualized return': 'annualized_return',
-            'sharpe ratio': 'sharpe_ratio',
-            'sortino ratio': 'sortino_ratio',
-            'max drawdown': 'max_drawdown'
-        }
+        dn_aggregate = {'actions', 'num steps', 'action distribution', 'portfolio factors'}
         
-
-
-        # Initialize data collectors
-        fold_data = {}  # {fold_id: {strategy: {metric: [values]}}}
-        window_data = {}  # {window_id: {strategy: {metric: [values]}}}
-        overall_data = {}  # {strategy: {metric: [values]}}
+        # collect data using setdefault
+        fold_data, window_data, overall_data = {}, {}, {}
         
-        total_stocks = 0
-        
-        # Iterate through fold_results structure
         for fold_id, window_results in cv_results.items():
-
-            if fold_id not in fold_data:
-                fold_data[fold_id] = {}
-            
-            for window_id, fold_window_results in window_results.items():
-                # Windows are 1-indexed in output
-                window_key = window_id + 1 if isinstance(window_id, int) else window_id
-                if window_key not in window_data:
-                    window_data[window_key] = {}
-                
-
-
-                # Process each benchmark strategy result
-                for result_key, strategy_result in fold_window_results.items():
-                    # Skip non-benchmark keys
-                    if result_key not in strategy_mapping:
-                        continue
+            for window_id, strategy_results in window_results.items():
+                for strategy, stock_results in strategy_results.items():
+                    strategy_name = strategy_mapping.get(strategy, strategy)
                     
-                    strategy_name = strategy_mapping[result_key]
+                    # initialize nested dicts
+                    fold_data.setdefault(fold_id, {}).setdefault(strategy_name, {})
+                    window_data.setdefault(window_id, {}).setdefault(strategy_name, {})
+                    overall_data.setdefault(strategy_name, {})
                     
-                    # Initialize strategy dicts if needed
-                    if strategy_name not in fold_data[fold_id]:
-                        fold_data[fold_id][strategy_name] = {}
-                    if strategy_name not in window_data[window_key]:
-                        window_data[window_key][strategy_name] = {}
-                    if strategy_name not in overall_data:
-                        overall_data[strategy_name] = {}
-                    
-
-
-                    # Extract stock_metrics from strategy_result
-                    # strategy_result should be a dict with stock tickers as keys
-                    if not isinstance(strategy_result, dict):
-                        continue
-                    
-                    for stock, stock_metrics in strategy_result.items():
-                        if not isinstance(stock_metrics, dict):
-                            continue
-                        
-
-
-                        
-                        total_stocks += 1
-                        
-                        # Extract each metric
-                        for metric_key, metric_name in metric_mapping.items():
-                            if metric_key not in stock_metrics:
+                    for stock, stock_metrics in stock_results.items():
+                        for metric, value in stock_metrics.items():
+                            if metric in dn_aggregate:
                                 continue
                             
-                            value = stock_metrics[metric_key]
-                            
-                            # Initialize metric lists if needed
-                            if metric_name not in fold_data[fold_id][strategy_name]:
-                                fold_data[fold_id][strategy_name][metric_name] = []
-                            if metric_name not in window_data[window_key][strategy_name]:
-                                window_data[window_key][strategy_name][metric_name] = []
-                            if metric_name not in overall_data[strategy_name]:
-                                overall_data[strategy_name][metric_name] = []
-                            
-                            # Collect values
-                            fold_data[fold_id][strategy_name][metric_name].append(value)
-                            window_data[window_key][strategy_name][metric_name].append(value)
-                            overall_data[strategy_name][metric_name].append(value)
+                            # append values using setdefault
+                            fold_data[fold_id][strategy_name].setdefault(metric, []).append(value)
+                            window_data[window_id][strategy_name].setdefault(metric, []).append(value)
+                            overall_data[strategy_name].setdefault(metric, []).append(value)
         
-        # Aggregate by fold
-        aggregated_by_fold = {}
-        for fold_id, strategy_data in fold_data.items():
-            aggregated_by_fold[fold_id] = {}
-            for strategy_name, metric_data in strategy_data.items():
-                aggregated_by_fold[fold_id][strategy_name] = {}
-                for metric_name, values in metric_data.items():
-                    aggregated_by_fold[fold_id][strategy_name][metric_name] = _compute_stats(values)
+        # helper function to aggregate across grouped data
+        def aggregate_across_groups(grouped_data: Dict) -> Dict:
+            aggregated = {}
+            for group_data in grouped_data.values():
+                for strategy_name, metric_data in group_data.items():
+                    if strategy_name not in aggregated:
+                        aggregated[strategy_name] = {}
+                    for metric_name, values in metric_data.items():
+                        aggregated[strategy_name].setdefault(metric_name, []).extend(values)
+            
+            # compute stats for each strategy/metric
+            return {
+                strategy: {
+                    metric: _compute_stats(values)
+                    for metric, values in metrics.items()
+                }
+                for strategy, metrics in aggregated.items()
+            }
         
-        # Aggregate by window
-        aggregated_by_window = {}
-        for window_id, strategy_data in window_data.items():
-            aggregated_by_window[window_id] = {}
-            for strategy_name, metric_data in strategy_data.items():
-                aggregated_by_window[window_id][strategy_name] = {}
-                for metric_name, values in metric_data.items():
-                    aggregated_by_window[window_id][strategy_name][metric_name] = _compute_stats(values)
+        # aggregate across folds and windows
+        aggregated_by_fold = aggregate_across_groups(fold_data)
+        aggregated_by_window = aggregate_across_groups(window_data)
         
-        # Aggregate overall
-        aggregated_overall = {}
-        for strategy_name, metric_data in overall_data.items():
-            aggregated_overall[strategy_name] = {}
-            for metric_name, values in metric_data.items():
-                aggregated_overall[strategy_name][metric_name] = _compute_stats(values)
-        
-        # Build final structure
-        aggregated = {
-            'summary': {
-                'total_folds': len(cv_results),
-                'total_windows': sum(len(window_results) for window_results in cv_results.values()),
-                'total_stocks_evaluated': total_stocks
-            },
-            'aggregated_metrics': {
-                'by_fold': aggregated_by_fold,
-                'by_window': aggregated_by_window,
-                'overall': aggregated_overall
-            },
-            'fold_results': cv_results  # Keep original for reference
+        # aggregate overall
+        aggregated_overall = {
+            strategy: {
+                metric: _compute_stats(values)
+                for metric, values in metrics.items()
+            }
+            for strategy, metrics in overall_data.items()
         }
         
-        return aggregated
+        return {
+            'By fold': aggregated_by_fold,
+            'By window': aggregated_by_window,
+            'Overall': aggregated_overall
+        }
         
     except Exception as e:
-        logger = get_logger("aggregate_cv_results")
+        logger = get_logger("aggregate results")
         logger.error(f"Error aggregating CV results: {e}")
         return {}
 
 
+def collect_portfolio_factors(cv_results: Dict) -> Dict:
+
+    try:
+        strategy_mapping = {
+            'Visual agent results': 'Visual agent',
+            'Numeric agent results': 'Numeric agent'
+        }
+        
+        # target strategies to extract
+        target_strategies = set(strategy_mapping.keys())
+        
+        portfolio_factors_data = {
+            'Visual agent': {},
+            'Numeric agent': {}
+        }
+        
+        for fold_id, window_results in cv_results.items():
+            for window_id, strategy_results in window_results.items():
+                for strategy, stock_results in strategy_results.items():
+                    # only extract for visual and numeric agents
+                    if strategy not in target_strategies:
+                        continue
+                    
+                    strategy_name = strategy_mapping[strategy]
+                    
+                    # initialize nested dicts
+                    portfolio_factors_data[strategy_name].setdefault(fold_id, {}).setdefault(window_id, {})
+                    
+                    for stock, stock_metrics in stock_results.items():
+                        if not isinstance(stock_metrics, dict):
+                            continue
+                        
+                        portfolio_factors = stock_metrics.get('portfolio factors')
+                        
+                        # validate and store portfolio factors
+                        if portfolio_factors is not None:
+                            # ensure it's a list/array
+                            if isinstance(portfolio_factors, (list, np.ndarray)):
+                                # convert to list for JSON serialization
+                                factors_list = list(portfolio_factors) if isinstance(portfolio_factors, np.ndarray) else portfolio_factors
+                                if factors_list:  # only store non-empty lists
+                                    portfolio_factors_data[strategy_name][fold_id][window_id][stock] = factors_list
+        
+        return portfolio_factors_data
+        
+    except Exception as e:
+        logger = get_logger("collect_portfolio_factors")
+        logger.error(f"Error collecting portfolio factors: {e}")
+        return {'Visual agent': {}, 'Numeric agent': {}}
 
 
 def compute_performance_metrics(
