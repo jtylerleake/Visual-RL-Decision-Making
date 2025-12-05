@@ -1,7 +1,7 @@
 
 from common.modules import np, pd, List, Dict, random, os, glob, PPO
 from src.utils.logging import get_logger
-from src.utils.metrics import compute_performance_metrics, aggregate_results, collect_portfolio_factors
+from src.utils.metrics import get_performance_metrics, get_aggregate_stats, get_portfolio_factors
 from src.utils.results_io import save_results
 from src.pipeline.data_pipeline import DataPipeline
 from src.pipeline.environment_pipeline import EnvironmentPipeline
@@ -51,7 +51,7 @@ class TemporalCrossValidation:
         self.portfolio_save_path = config.get('Portfolio factors save path')
         
         # cache results
-        self.cv_results = None
+        self.cross_validation_results = None
         self.aggregated_results = None
         
         # seed reproducibility
@@ -240,6 +240,7 @@ class TemporalCrossValidation:
             env_dict = getattr(environment, f'{modality}_environments', {})
         
         for stock, monitor in env_dict.items():
+            
             portfolio_factors = []
             episode_reward = 0
             actions = []
@@ -278,17 +279,18 @@ class TemporalCrossValidation:
                 portfolio_factors.append(info.get('total_profit', 1.0))
                 episode_reward += reward
                 step_count += 1
+                
+            unique_actions, action_counts = np.unique(actions, return_counts=True)
             
             # compute metrics
-            metrics = compute_performance_metrics(
+            metrics = get_performance_metrics(
                 portfolio_factors = portfolio_factors,
                 start_date = self.config.get('Start date'),
                 end_date = self.config.get('End date'),
                 sig_figs = 4
             )
-            
-            unique_actions, action_counts = np.unique(actions, return_counts=True)
-            
+                        
+            # compile stock metrics
             stock_metrics[stock] = {
                 'portfolio factors': portfolio_factors,
                 'episode reward': episode_reward,
@@ -377,12 +379,12 @@ class TemporalCrossValidation:
         baseline_results = {}
         for baseline_class in [MACD, Long, Random]:
             baseline = baseline_class()
-            baseline_results[f'{baseline_class.__name__} results'] = \
+            baseline_results[f'{baseline_class.__name__}'] = \
                 self.evaluate(baseline, test_env, 'image')
         
         return {
-            'Visual agent results': visual_results,
-            'Numeric agent results': numeric_results,
+            'Visual agent': visual_results,
+            'Numeric agent': numeric_results,
             **baseline_results
         }
     
@@ -453,7 +455,7 @@ class TemporalCrossValidation:
             
             # step 4: execute cross-validation
             self.logger.info("Executing cross-validation...")
-            self.cv_results = self.exe_cross_validation(
+            self.cross_validation_results = self.exe_cross_validation(
                 fold_assignments, 
                 frame_bounds, 
                 timeseries_data, 
@@ -465,9 +467,9 @@ class TemporalCrossValidation:
 
                 # tabular statistics
                 self.logger.info("Aggregating results...")
-                self.aggregated_results = aggregate_results(self.cv_results)
+                self.aggregated_stats = get_aggregate_stats(self.cross_validation_results)
                 self.save_experiment_results(
-                    self.aggregated_results,
+                    self.aggregated_stats,
                     filepath = self.results_save_path,
                     format = 'json',
                     compress = True
@@ -475,7 +477,7 @@ class TemporalCrossValidation:
                 
                 # portfolio factors
                 self.logger.info("Collecting portfolio factors...")
-                portfolio_factors = collect_portfolio_factors(self.cv_results)
+                portfolio_factors = get_portfolio_factors(self.cross_validation_results)
                 self.save_experiment_results(
                     portfolio_factors,
                     filepath = self.portfolio_save_path,
@@ -515,13 +517,15 @@ if __name__ == "__main__":
 
     from src.utils.configurations import load_config
 
-    for experiment_name in ['Large-Cap', 'Medium-Cap', 'Small-Cap']:
-        config = load_config(experiment_name)
-        experiment = TemporalCrossValidation(experiment_name, config)
-        resuts = experiment.exe_experiment('inference')
+# =============================================================================
+#     for experiment_name in ['Large-Cap', 'Medium-Cap', 'Small-Cap']:
+#         config = load_config(experiment_name)
+#         experiment = TemporalCrossValidation(experiment_name, config)
+#         resuts = experiment.exe_experiment('inference')
+# =============================================================================
         
-    # experiment_name = 'Mini'
-    # config = load_config(experiment_name)
-    # experiment = TemporalCrossValidation(experiment_name, config)
-    # results = experiment.exe_experiment('inference')
+    experiment_name = 'Mini'
+    config = load_config(experiment_name)
+    experiment = TemporalCrossValidation(experiment_name, config)
+    results = experiment.exe_experiment('inference')
 

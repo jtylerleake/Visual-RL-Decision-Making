@@ -311,7 +311,7 @@ if __name__ == "__main__":
     # Example usage - modify as needed
     experiment_name = "Mini"
     agent_type = "visual"  # or "numeric"
-    n_trials = 50
+    n_trials = 2
     
     results = run_hyperparameter_tuning(
         experiment_name=experiment_name,

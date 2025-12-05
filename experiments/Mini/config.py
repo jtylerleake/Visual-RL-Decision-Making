@@ -12,7 +12,7 @@ EXPERIMENT_CONFIG = {
     # Model and results save paths
     'Visual agent save path': f"./experiments/{experiment_name}/visual_models",
     'Numeric agent save path': f"./experiments/{experiment_name}/numeric_models", 
-    'Results save path': f"./experiments/{experiment_name}/aggregated_results", 
+    'Results save path': f"./experiments/{experiment_name}/aggregated_statistics", 
     'Portfolio factors save path': f"./experiments/{experiment_name}/portfolio_factors", 
     
     # -------------------------------------------------------------------------
