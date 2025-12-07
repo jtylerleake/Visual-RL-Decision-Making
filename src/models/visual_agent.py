@@ -9,11 +9,12 @@ import os
 class VisualAgent(BaseStrategy):
     
     """
-    Overhead class for instantiating and training the visual A2C reinforcement 
+    Overhead class for instantiating and training the visual PPO reinforcement 
     learning model. Requires pre-built training env and an experiment config
 
     :param training_environment (): environment for model training
     :param config (Dict): experiment configuration dictionary
+    
     """
         
     def __init__(

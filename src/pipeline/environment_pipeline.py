@@ -383,30 +383,4 @@ class EnvironmentPipeline:
         except Exception as e:
             self.logger.error(f"Error building GAF pipeline: {e}")
             return False
-
-
-
-if __name__ == "__main__":
-    
-    from src.utils.configurations import load_config
-    from src.pipeline.data_pipeline import DataPipeline
-    
-    experiment_name = 'Mini'
-    experiment_config = load_config(experiment_name)
-    
-    DATA = DataPipeline(experiment_name)
-    Data = DATA.exe_data_pipeline(experiment_config)
-    
-    ENV = EnvironmentPipeline(
-        experiment_name,
-        timeseries = Data,
-        features = experiment_config.get('Features'),
-        target = experiment_config.get('Target'),
-        gaf_periods = experiment_config.get('GAF periods'),
-        lookback_window = experiment_config.get('Lookback window')
-    )
-    
-    ENV.exe_env_pipeline(modality = 'image')
-    ENV.exe_env_pipeline(modality = 'numeric')
-    
    

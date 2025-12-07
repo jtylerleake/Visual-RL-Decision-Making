@@ -8,7 +8,7 @@ import os
 class NumericAgent(BaseStrategy):
     
     """
-    Overhead class for instantiating and training the numeric A2C reinforcement 
+    Overhead class for instantiating and training the numeric PPO reinforcement 
     learning model. Requires pre-built training env and an experiment config
 
     :param training_environment (): environment for model training

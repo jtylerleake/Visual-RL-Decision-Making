@@ -232,77 +232,269 @@ class TemporalCrossValidation:
         environment, 
         modality,
     ) -> Dict:
-        """Evaluate a strategy in an environment"""
+        """Evaluate a strategy in an environment using vectorized batch processing for maximum speedup"""
         stock_metrics = {}
-        if hasattr(strategy, 'strategy_type') and strategy.strategy_type == 'Benchmark':
-            env_dict = getattr(environment, 'image_environments', {})
-        else:
-            env_dict = getattr(environment, f'{modality}_environments', {})
         
-        for stock, monitor in env_dict.items():
+        # Check if this is a benchmark strategy (needs individual stock data)
+        is_benchmark = hasattr(strategy, 'strategy_type') and strategy.strategy_type == 'Benchmark'
+        is_agent = hasattr(strategy, 'strategy_type') and strategy.strategy_type == 'Agent'
+        
+        if is_benchmark:
+            # Benchmark strategies need sequential processing (they use individual stock data)
+            env_dict = getattr(environment, 'image_environments', {})
             
-            portfolio_factors = []
-            episode_reward = 0
-            actions = []
-            env = monitor.env
-            obs, info = env.reset()
-            obs = obs[0] if isinstance(obs, tuple) else obs
-            portfolio_factors.append(info.get('total_profit', 1.0))
-            done = False
-            step_count = 0
-            
-            while not done:
-                # prepare observation
-                obs_batch = np.expand_dims(obs, axis=0) if len(obs.shape) == 3 else obs
+            for stock, monitor in env_dict.items():
+                portfolio_factors = []
+                episode_reward = 0
+                actions = []
+                env = monitor.env
+                obs, info = env.reset()
+                obs = obs[0] if isinstance(obs, tuple) else obs
+                portfolio_factors.append(info.get('total_profit', 1.0))
+                done = False
+                step_count = 0
                 
-                # get action
-                if hasattr(strategy, 'strategy_type') and strategy.strategy_type == 'Agent':
-                    action, _ = strategy.model.predict(obs_batch, deterministic=self.deterministic)
-                else:
+                while not done:
                     # for benchmark strategies
                     data = environment.timeseries[stock]
                     last_action = actions[-1] if actions else None
                     action = strategy.predict(data, last_action, step_count)
+                    
+                    if isinstance(action, np.ndarray):
+                        action = int(action.item()) if action.ndim == 0 else int(action[0])
+                    elif isinstance(action, list):
+                        action = int(action[0]) if len(action) > 0 else 0
+                    else:
+                        action = int(action)
+                    actions.append(action)
+                    
+                    # step environment
+                    obs, reward, terminated, truncated, info = env.step(action)
+                    done = terminated or truncated
+                    
+                    portfolio_factors.append(info.get('total_profit', 1.0))
+                    episode_reward += reward
+                    step_count += 1
                 
-                if isinstance(action, np.ndarray):
-                    action = int(action.item()) if action.ndim == 0 else int(action[0])
-                elif isinstance(action, list):
-                    action = int(action[0]) if len(action) > 0 else 0
-                else:
-                    action = int(action)
-                actions.append(action)
+                unique_actions, action_counts = np.unique(actions, return_counts=True)
                 
-                # step environment
-                obs, reward, terminated, truncated, info = env.step(action)
-                done = terminated or truncated
-                
-                portfolio_factors.append(info.get('total_profit', 1.0))
-                episode_reward += reward
-                step_count += 1
-                
-            unique_actions, action_counts = np.unique(actions, return_counts=True)
+                # compute metrics
+                metrics = get_performance_metrics(
+                    portfolio_factors = portfolio_factors,
+                    start_date = self.config.get('Start date'),
+                    end_date = self.config.get('End date'),
+                    sig_figs = 4
+                )
+                            
+                # compile stock metrics
+                stock_metrics[stock] = {
+                    'portfolio factors': portfolio_factors,
+                    'episode reward': episode_reward,
+                    'actions': actions,
+                    'action distribution': dict(zip(unique_actions.tolist(), action_counts.tolist())),
+                    'num steps': step_count,
+                    'cumulative return': metrics['cumulative return'],
+                    'annualized return': metrics['annualized cumulative return'],
+                    'sharpe ratio': metrics['sharpe ratio'],
+                    'sortino ratio': metrics['sortino ratio'],
+                    'max drawdown': metrics['max drawdown'],
+                }
+        
+        elif is_agent:
+            # Agent strategies: Use vectorized environment for parallel batch processing
+            vec_env = getattr(environment, f'{modality}_vec_environment', None)
+            env_dict = getattr(environment, f'{modality}_environments', {})
             
-            # compute metrics
-            metrics = get_performance_metrics(
-                portfolio_factors = portfolio_factors,
-                start_date = self.config.get('Start date'),
-                end_date = self.config.get('End date'),
-                sig_figs = 4
-            )
+            if vec_env is None or not env_dict:
+                # Fallback to sequential if vectorized env not available
+                self.logger.warning("Vectorized environment not available, falling back to sequential evaluation")
+                for stock, monitor in env_dict.items():
+                    portfolio_factors = []
+                    episode_reward = 0
+                    actions = []
+                    env = monitor.env
+                    obs, info = env.reset()
+                    obs = obs[0] if isinstance(obs, tuple) else obs
+                    portfolio_factors.append(info.get('total_profit', 1.0))
+                    done = False
+                    step_count = 0
+                    
+                    while not done:
+                        obs_batch = np.expand_dims(obs, axis=0) if len(obs.shape) == 3 else obs
+                        action, _ = strategy.model.predict(obs_batch, deterministic=self.deterministic)
                         
-            # compile stock metrics
-            stock_metrics[stock] = {
-                'portfolio factors': portfolio_factors,
-                'episode reward': episode_reward,
-                'actions': actions,
-                'action distribution': dict(zip(unique_actions.tolist(), action_counts.tolist())),
-                'num steps': step_count,
-                'cumulative return': metrics['cumulative return'],
-                'annualized return': metrics['annualized cumulative return'],
-                'sharpe ratio': metrics['sharpe ratio'],
-                'sortino ratio': metrics['sortino ratio'],
-                'max drawdown': metrics['max drawdown'],
-            }
+                        if isinstance(action, np.ndarray):
+                            action = int(action.item()) if action.ndim == 0 else int(action[0])
+                        elif isinstance(action, list):
+                            action = int(action[0]) if len(action) > 0 else 0
+                        else:
+                            action = int(action)
+                        actions.append(action)
+                        
+                        obs, reward, terminated, truncated, info = env.step(action)
+                        done = terminated or truncated
+                        
+                        portfolio_factors.append(info.get('total_profit', 1.0))
+                        episode_reward += reward
+                        step_count += 1
+                    
+                    unique_actions, action_counts = np.unique(actions, return_counts=True)
+                    metrics = get_performance_metrics(
+                        portfolio_factors = portfolio_factors,
+                        start_date = self.config.get('Start date'),
+                        end_date = self.config.get('End date'),
+                        sig_figs = 4
+                    )
+                    stock_metrics[stock] = {
+                        'portfolio factors': portfolio_factors,
+                        'episode reward': episode_reward,
+                        'actions': actions,
+                        'action distribution': dict(zip(unique_actions.tolist(), action_counts.tolist())),
+                        'num steps': step_count,
+                        'cumulative return': metrics['cumulative return'],
+                        'annualized return': metrics['annualized cumulative return'],
+                        'sharpe ratio': metrics['sharpe ratio'],
+                        'sortino ratio': metrics['sortino ratio'],
+                        'max drawdown': metrics['max drawdown'],
+                    }
+                return stock_metrics
+            
+            # Get stock names in the same order as vectorized environment
+            stock_names = list(env_dict.keys())
+            num_stocks = len(stock_names)
+            
+            # Initialize tracking structures for all stocks
+            portfolio_factors_dict = {stock: [] for stock in stock_names}
+            episode_rewards = {stock: 0.0 for stock in stock_names}
+            actions_dict = {stock: [] for stock in stock_names}
+            step_counts = {stock: 0 for stock in stock_names}
+            
+            # Reset all environments at once (vectorized)
+            obs_batch = vec_env.reset()
+            # Handle tuple return from reset
+            if isinstance(obs_batch, tuple):
+                obs_batch = obs_batch[0]
+            
+            # Initialize portfolio factors with 1.0 (normalized portfolios start at 1.0)
+            # We'll get the actual initial value from the first step's info
+            for stock in stock_names:
+                portfolio_factors_dict[stock].append(1.0)
+            
+            # Track which environments are done
+            dones = np.zeros(num_stocks, dtype=bool)
+            
+            # Main evaluation loop - process all stocks in parallel
+            max_steps = 10000  # Safety limit to prevent infinite loops
+            step = 0
+            
+            while not np.all(dones) and step < max_steps:
+                # Batch predict actions for all active environments
+                # Only predict for environments that aren't done
+                active_mask = ~dones
+                
+                if np.any(active_mask):
+                    # Get observations for active environments
+                    active_obs = obs_batch[active_mask]
+                    num_active = np.sum(active_mask)
+                    
+                    # Batch prediction - single call for all active stocks
+                    actions_batch, _ = strategy.model.predict(active_obs, deterministic=self.deterministic)
+                    
+                    # Convert actions to proper format
+                    if isinstance(actions_batch, np.ndarray):
+                        if actions_batch.ndim == 0:
+                            actions_batch = np.array([int(actions_batch.item())])
+                        else:
+                            actions_batch = actions_batch.flatten().astype(int)
+                    elif isinstance(actions_batch, list):
+                        actions_batch = np.array([int(a) if isinstance(a, (int, np.integer)) else int(a[0]) for a in actions_batch])
+                    else:
+                        actions_batch = np.array([int(actions_batch)])
+                    
+                    # Ensure actions_batch has the correct length
+                    if len(actions_batch) != num_active:
+                        # If mismatch, pad or truncate (shouldn't happen, but safety check)
+                        if len(actions_batch) < num_active:
+                            actions_batch = np.pad(actions_batch, (0, num_active - len(actions_batch)), mode='constant', constant_values=0)
+                        else:
+                            actions_batch = actions_batch[:num_active]
+                    
+                    # Create full action array (use 0 for done environments)
+                    full_actions = np.zeros(num_stocks, dtype=int)
+                    full_actions[active_mask] = actions_batch
+                    
+                    # Store actions for active stocks
+                    for idx in np.where(active_mask)[0]:
+                        stock = stock_names[idx]
+                        actions_dict[stock].append(int(full_actions[idx]))
+                else:
+                    # All done, break
+                    break
+                
+                # Step all environments in parallel (vectorized)
+                step_results = vec_env.step(full_actions)
+                obs_batch, rewards, terminated, truncated, infos = step_results
+                
+                # Update done states
+                new_dones = terminated | truncated
+                dones = dones | new_dones
+                
+                # Update tracking for all stocks
+                for idx, stock in enumerate(stock_names):
+                    if not dones[idx]:
+                        # Active environment: track portfolio and rewards
+                        portfolio_factors_dict[stock].append(infos[idx].get('total_profit', 1.0))
+                        episode_rewards[stock] += float(rewards[idx])
+                        step_counts[stock] += 1
+                    elif new_dones[idx]:
+                        # Environment just finished: capture final state
+                        portfolio_factors_dict[stock].append(infos[idx].get('total_profit', 1.0))
+                        episode_rewards[stock] += float(rewards[idx])
+                        step_counts[stock] += 1
+                
+                step += 1
+            
+            # Compute metrics for all stocks
+            for stock in stock_names:
+                portfolio_factors = portfolio_factors_dict[stock]
+                actions = actions_dict[stock]
+                
+                if len(portfolio_factors) > 1:
+                    unique_actions, action_counts = np.unique(actions, return_counts=True)
+                    
+                    metrics = get_performance_metrics(
+                        portfolio_factors = portfolio_factors,
+                        start_date = self.config.get('Start date'),
+                        end_date = self.config.get('End date'),
+                        sig_figs = 4
+                    )
+                    
+                    stock_metrics[stock] = {
+                        'portfolio factors': portfolio_factors,
+                        'episode reward': episode_rewards[stock],
+                        'actions': actions,
+                        'action distribution': dict(zip(unique_actions.tolist(), action_counts.tolist())),
+                        'num steps': step_counts[stock],
+                        'cumulative return': metrics['cumulative return'],
+                        'annualized return': metrics['annualized cumulative return'],
+                        'sharpe ratio': metrics['sharpe ratio'],
+                        'sortino ratio': metrics['sortino ratio'],
+                        'max drawdown': metrics['max drawdown'],
+                    }
+                else:
+                    # Fallback for stocks with insufficient data
+                    stock_metrics[stock] = {
+                        'portfolio factors': portfolio_factors,
+                        'episode reward': episode_rewards[stock],
+                        'actions': actions,
+                        'action distribution': {},
+                        'num steps': step_counts[stock],
+                        'cumulative return': 0.0,
+                        'annualized return': 0.0,
+                        'sharpe ratio': 0.0,
+                        'sortino ratio': 0.0,
+                        'max drawdown': 0.0,
+                    }
         
         return stock_metrics
     
@@ -313,7 +505,7 @@ class TemporalCrossValidation:
         frame_bounds,
         fold_idx, 
         window_idx, 
-        phase,
+        mode,
     ) -> Dict:
         """Train, validate, and test for a fold/window combination"""
         
@@ -332,7 +524,7 @@ class TemporalCrossValidation:
             )
         }
         
-        if phase == 'training':
+        if mode == 'training':
             # set training bounds and train agents
             self._set_env_frame_bounds(train_env, train_bounds)
             visual_agent = VisualAgent(train_env, self.config)
@@ -348,7 +540,7 @@ class TemporalCrossValidation:
             )
             return {}
         
-        # inference phase; find checkpoints
+        # inference mode; find checkpoints
         image_checkpoints = sorted(
             glob.glob(os.path.join(checkpoint_dirs['image'], 'checkpoint_*.zip'))
             ) or [None]
@@ -393,7 +585,7 @@ class TemporalCrossValidation:
         fold_assignments,
         frame_bounds,
         timeseries, 
-        phase
+        mode
     ) -> Dict:
         """Execute cross-validation across folds and windows"""
         fold_results = {}
@@ -412,20 +604,24 @@ class TemporalCrossValidation:
                 self.logger.info(f"  Window {window_idx+1}/{self.walk_throughs}")
                 
                 window_metrics = self.train_validate_test(
-                    train_env, test_env, frame_bounds, fold_idx, window_idx, phase
+                    train_env, 
+                    test_env, 
+                    frame_bounds, 
+                    fold_idx, 
+                    window_idx, mode
                 )
                 
-                if phase == 'inference' and window_metrics:
+                if mode == 'inference' and window_metrics:
                     window_results[window_idx+1] = window_metrics
             
-            if phase == 'inference':
+            if mode == 'inference':
                 fold_results[fold_idx+1] = window_results
         
         return fold_results
     
     def exe_experiment(
         self, 
-        phase,
+        mode,
     ) -> Dict:
         """Execute the complete cross-validation experiment"""
         
@@ -459,11 +655,11 @@ class TemporalCrossValidation:
                 fold_assignments, 
                 frame_bounds, 
                 timeseries_data, 
-                phase
+                mode
             )
             
             # step 5: aggregate and results
-            if phase == 'inference':
+            if mode == 'inference':
 
                 # tabular statistics
                 self.logger.info("Aggregating results...")
@@ -511,21 +707,4 @@ class TemporalCrossValidation:
             compress = compress,
             run_id = self.run_id
         )
-
-
-if __name__ == "__main__":
-
-    from src.utils.configurations import load_config
-
-# =============================================================================
-#     for experiment_name in ['Large-Cap', 'Medium-Cap', 'Small-Cap']:
-#         config = load_config(experiment_name)
-#         experiment = TemporalCrossValidation(experiment_name, config)
-#         resuts = experiment.exe_experiment('inference')
-# =============================================================================
-        
-    experiment_name = 'Mini'
-    config = load_config(experiment_name)
-    experiment = TemporalCrossValidation(experiment_name, config)
-    results = experiment.exe_experiment('inference')
 

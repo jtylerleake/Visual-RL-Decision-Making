@@ -70,7 +70,7 @@ EXPERIMENT_CONFIG = {
     # -------------------------------------------------------------------------
     
     # Time and frequency attributes
-    'Start date': '2004-01-01',
+    'Start date': '2004-12-30',
     'End date': '2024-12-30',
     'Update frequency': '1d',
     
