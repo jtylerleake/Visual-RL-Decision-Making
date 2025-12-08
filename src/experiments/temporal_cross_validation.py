@@ -93,7 +93,17 @@ class TemporalCrossValidation:
         timeseries
     ) -> Dict[str, List]:
         """Creates frame bounds for temporal walk-forward windows"""
-        df = next(iter(timeseries.values()))
+        # Find the dataframe with the smallest number of data points
+        # to ensure all dataframes can accommodate the frame bounds
+        min_length = float('inf')
+        min_df = None
+        for df in timeseries.values():
+            df_len = len(df)
+            if df_len < min_length:
+                min_length = df_len
+                min_df = df
+        
+        df = min_df
         num_sequences = len(df) - self.gaf_periods + 1
         
         # get and normalize ratios
@@ -667,4 +677,5 @@ class TemporalCrossValidation:
             compress = compress,
             run_id = self.run_id
         )
-
+    
+    

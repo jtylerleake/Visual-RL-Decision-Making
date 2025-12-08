@@ -33,7 +33,7 @@ def get_portfolio_factors(cross_validation_results) -> Dict:
         return {'Visual agent': {}, 'Numeric agent': {}}
 
 
-def compute_stats(values) -> Dict[str, float]:
+def compute_stats(values, sig_figs: int = 4) -> Dict[str, float]:
     """Helper function to compute statistics from a list of values"""
     if not values:
         return {
@@ -58,14 +58,14 @@ def compute_stats(values) -> Dict[str, float]:
     std_val = float(np.std(values_array)) if len(values_array) > 1 else 0.0
     
     return {
-        'mean': float(np.mean(values_array)),
-        'std': std_val,
-        'min': float(np.min(values_array)),
-        'max': float(np.max(values_array))
+        'mean': round(float(np.mean(values_array)), sig_figs),
+        'std': round(std_val, sig_figs),
+        'min': round(float(np.min(values_array)), sig_figs),
+        'max': round(float(np.max(values_array)), sig_figs)
     }
 
 
-def get_aggregate_stats(cross_validation_results) -> Dict:
+def get_aggregate_stats(cross_validation_results, sig_figs: int = 4) -> Dict:
     """Aggregate temporal cross-validation results by fold and window and
     compute basic statistics for each"""
     
@@ -106,7 +106,7 @@ def get_aggregate_stats(cross_validation_results) -> Dict:
             # compute stats for each strategy/metric
             return {
                 strategy: {
-                    metric: compute_stats(values)
+                    metric: compute_stats(values, sig_figs)
                     for metric, values in metrics.items()
                 }
                 for strategy, metrics in aggregated.items()

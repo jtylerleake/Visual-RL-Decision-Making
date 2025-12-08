@@ -1,0 +1,20 @@
+{
+    "experiment_name": "Medium-Cap",
+    "agent_type": "visual",
+    "best_value": 0.0,
+    "best_trial_number": 4,
+    "best_hyperparameters": {
+        "Learning rate": 0.006085574081564753,
+        "Batch size": 64,
+        "Rollout steps": 1792,
+        "Gamma": 0.9135368005698759,
+        "GAE lambda": 0.8855026209266923,
+        "Clip range": 0.16509059764342734,
+        "Entropy coefficient": 1.4050262440033276e-06,
+        "VF coefficient": 0.5926283242982189,
+        "Max grad norm": 0.3785815456992928,
+        "Epochs": 10,
+        "Feature dim": 512
+    },
+    "n_trials": 50
+}

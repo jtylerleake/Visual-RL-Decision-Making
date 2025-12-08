@@ -113,15 +113,6 @@ def get_logger(experiment_name, run_id: Optional[str] = None, save_log_file: boo
     """
     Creates and returns a new ExperimentLogger instance for the given experiment_name.
     Each call creates a new logger instance, ensuring each experiment run gets its own log file.
-    
-    Args:
-        experiment_name: Name of the experiment
-        run_id: Optional unique identifier for this run (e.g., "001", "002"). 
-                If provided, creates a unique log file for each run.
-        save_log_file: Whether to save log to file (default: True)
-    
-    Returns:
-        ExperimentLogger instance
     """
     return ExperimentLogger(experiment_name, run_id=run_id, save_log_file=save_log_file)
 

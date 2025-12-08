@@ -1,4 +1,6 @@
 
+# ssh -i C:\Users\Jtyler\.ssh\id_rsa ubuntu@157.151.245.37
+
 # --- 1. update and upgrade the system --- # 
 # echo "Starting system update and essential package installation..."
 # sudo apt update && sudo apt upgrade -y
@@ -28,5 +30,4 @@ python -c "import torch; print(torch.cuda.is_available())"
 
 # --- 6. install project dependencies from requirements --- #
 echo "Installing the project dependencies..."
-cd visual-reinforcement-fin-decision-making
 pip install -r requirements.txt

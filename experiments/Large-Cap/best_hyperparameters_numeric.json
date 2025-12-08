@@ -1,0 +1,19 @@
+{
+    "experiment_name": "Large-Cap",
+    "agent_type": "numeric",
+    "best_value": 0.006320851641432143,
+    "best_trial_number": 4,
+    "best_hyperparameters": {
+        "Learning rate": 2.9561060538346987e-05,
+        "Batch size": 128,
+        "Rollout steps": 1024,
+        "Gamma": 0.9291269679440013,
+        "GAE lambda": 0.9347733318317,
+        "Clip range": 0.23051280976314076,
+        "Entropy coefficient": 0.0030861439285987734,
+        "VF coefficient": 0.6100714700055692,
+        "Max grad norm": 0.974842040895288,
+        "Epochs": 7
+    },
+    "n_trials": 50
+}

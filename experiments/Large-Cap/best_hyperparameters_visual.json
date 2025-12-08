@@ -1,0 +1,22 @@
+{
+    "experiment_name": "Large-Cap",
+    "agent_type": "visual",
+    "best_value": 0.0,
+    "best_trial_number": 0,
+    "best_hyperparameters": {
+        "Learning rate": 0.007724648895904556,
+        "Batch size": 256,
+        "Rollout steps": 768,
+        "Gamma": 0.9751541972871537,
+        "GAE lambda": 0.8168697074108542,
+        "Clip range": 0.13089765432305783,
+        "Entropy coefficient": 0.0006810482071785461,
+        "VF coefficient": 0.5189919855270405,
+        "Max grad norm": 0.3397638968259331,
+        "Epochs": 12,
+        "Feature dim": 512
+    },
+    "n_trials": 50
+}
+
+
