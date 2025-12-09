@@ -101,10 +101,12 @@ def plot_normalized_test_lines(
 
 
 def convert_to_latex_table(
+    metric: str = 'cumulative return',
     aggregated_stats_fpath: str = None,
     save_directory: str = None,
     aggregation_level: str = 'fold',
     sig_figs: int = 4,
+    n_folds: int = 5,
 ) -> str:
     """Convert aggregate statistics from cross-validation to LaTeX table"""
     
@@ -121,50 +123,59 @@ def convert_to_latex_table(
         if not results: raise ValueError(f"No '{section_key}' section found in results file")
         
         # helper function to format a value
-        def format_val(value, default = 0.0):
+        def format_val(value, pct = False, default = 0.0):
             if value is None or np.isnan(value): return default
-            return round(float(value), sig_figs)
+            if pct: 
+                rounded = round(float(value) * 100, sig_figs)
+                return f"{rounded:.2f}\%"
+            else: 
+                rounded = round(float(value), sig_figs)
+                return f"{rounded:.3f}"
         
         # helper function to get metric value from aggregated results
-        def get_metric(results, strategy, metric, stat):
+        def get_metric(results, metric, strategy, stat):
             try:
                 strategy_data = results.get(strategy, {})
-                metric_data = strategy_data.get(metric, {})
-                if isinstance(metric_data, dict):
-                    return metric_data.get(stat)
-                return 0.0
+                metric = strategy_data.get(metric, {})
+                stat = metric.get(stat, "x")
+                return stat
             except:
                 return 0.0
 
         latex_lines = []
-        strategy_order = ['Long', 'Random', 'MACD', 'Numeric PPO Agent', 'Visual PPO Agent']
+        strategy_order = ['Long', 'Random', 'MACD', 'Numeric agent', 'Visual agent']
         
         for strategy in strategy_order:
             
-            strategy = 'Numeric agent' if strategy == 'Numeric PPO Agent' else strategy
-            strategy = 'Visual agent' if strategy == 'Visual PPO Agent' else strategy
+            F1 = format_val(get_metric(results, metric, strategy, '1'), pct = True)
+            F2 = format_val(get_metric(results, metric, strategy, '2'), pct = True)
+            F3 = format_val(get_metric(results, metric, strategy, '3'), pct = True)
+            # F4 = format_val(get_metric(results, metric, strategy, '4'), pct = True)
+            # F5 = format_val(get_metric(results, metric, strategy, '5'), pct = True)
             
-            cumret_mean = format_val(get_metric(results, strategy, 'cumulative return', 'mean'))
-            cumret_std = format_val(get_metric(results, strategy, 'cumulative return', 'std'))
-            cumret_min = format_val(get_metric(results, strategy, 'cumulative return', 'min'))
-            cumret_max = format_val(get_metric(results, strategy, 'cumulative return', 'max'))
-            ann_ret = format_val(get_metric(results, strategy, 'annualized return', 'mean'))
-            sharpe = format_val(get_metric(results, strategy, 'sharpe ratio', 'mean'))
-            sortino = format_val(get_metric(results, strategy, 'sortino ratio', 'mean'))
-            mdd = format_val(get_metric(results, strategy, 'max drawdown', 'mean'))
+            AVG = format_val(get_metric(results, metric, strategy, 'mean'), pct = True)
+            STD = format_val(get_metric(results, metric, strategy, 'std'))
+            MIN = format_val(get_metric(results, metric, strategy, 'min'), pct = True)
+            MAX = format_val(get_metric(results, metric, strategy, 'max'), pct = True)
+            
+            # sharpe = format_val(get_metric(results, strategy, 'sharpe ratio', 'mean'))
+            # sortino = format_val(get_metric(results, strategy, 'sortino ratio', 'mean'))
+            # mdd = format_val(get_metric(results, strategy, 'max drawdown', 'mean'), pct = True)
 
             # format the row with uniform and minimal whitespace around &
             row = (
                 f"{strategy:<20} & "
-                f"{cumret_mean:.{sig_figs}} & "
-                f"{cumret_std:.{sig_figs}} & "
-                f"{cumret_min:.{sig_figs}f} & "
-                f"{cumret_max:.{sig_figs}f} & "
-                f"{ann_ret:.{sig_figs}f} & "
-                f"{sharpe:.{sig_figs}f} & "
-                f"{sortino:.{sig_figs}f} & "
-                f"{mdd:.{sig_figs}f} \\\\"
+                f"{F1} & "
+                f"{F2} & "
+                f"{F3} & "
+                # f"{F4} & "
+                # f"{F5} & "
+                f"{AVG} & "
+                f"{STD} & "
+                f"{MIN} & "
+                f"{MAX} & \\\\"
             )
+            
             latex_lines.append(row)
             
         latex_table = "\n".join(latex_lines)
@@ -173,7 +184,7 @@ def convert_to_latex_table(
         save_dir = os.path.abspath(save_directory)
         if save_dir and not os.path.exists(save_dir): os.makedirs(save_dir, exist_ok=True)
         fname = section_key.split("-")[0].lower()
-        extension = f"{fname}_wise_results"
+        extension = f"{metric}_{fname}_wise_results"
         table_save_path = os.path.normpath(os.path.join(save_dir, extension))
         with open(table_save_path, 'w', encoding='utf-8') as f:
             f.write(latex_table)

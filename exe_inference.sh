@@ -4,8 +4,8 @@ experiments=("Large-Cap" "Medium-Cap" "Small-Cap")
 for experiment in "${experiments[@]}"; do
 
     cd ~
-    mv -v visual-reinforcement-fin-decision-making-storage/experiments/"${experiment}"/visual_models visual-reinforcement-fin-decision-making/experiments/"${experiment}"
-    mv -v visual-reinforcement-fin-decision-making-storage/experiments/"${experiment}"/numeric_models visual-reinforcement-fin-decision-making/experiments/"${experiment}"
+    cp -v visual-reinforcement-fin-decision-making-storage/experiments/"${experiment}"/visual_models visual-reinforcement-fin-decision-making/experiments/"${experiment}"
+    cp -v visual-reinforcement-fin-decision-making-storage/experiments/"${experiment}"/numeric_models visual-reinforcement-fin-decision-making/experiments/"${experiment}"
 
 done 
 

@@ -1,0 +1,386 @@
+{
+  "Fold-wise": {
+    "Visual agent": {
+      "episode reward": {
+        "mean": 18.174,
+        "std": 141.1236,
+        "min": -626.668,
+        "max": 462.5186
+      },
+      "cumulative return": {
+        "mean": 0.0324,
+        "std": 0.7546,
+        "min": -0.7956,
+        "max": 2.9091
+      },
+      "annualized return": {
+        "mean": 4.7625366159109766e+17,
+        "std": 3.310493014240277e+18,
+        "min": -1.0,
+        "max": 2.3649150820831138e+19
+      },
+      "sharpe ratio": {
+        "mean": -3.067,
+        "std": 7.0292,
+        "min": -43.7743,
+        "max": -0.085
+      },
+      "sortino ratio": {
+        "mean": -0.5872,
+        "std": 0.6732,
+        "min": -3.2631,
+        "max": 0.0
+      },
+      "max drawdown": {
+        "mean": 0.3183,
+        "std": 0.2583,
+        "min": 0.0,
+        "max": 0.8365
+      }
+    },
+    "Numeric agent": {
+      "episode reward": {
+        "mean": 7.3448,
+        "std": 46.0983,
+        "min": -102.174,
+        "max": 260.535
+      },
+      "cumulative return": {
+        "mean": 0.3002,
+        "std": 0.8134,
+        "min": -0.6671,
+        "max": 3.8551
+      },
+      "annualized return": {
+        "mean": 1.4378646156256038e+18,
+        "std": 1.001541547751742e+19,
+        "min": -1.0,
+        "max": 7.1544942429469155e+19
+      },
+      "sharpe ratio": {
+        "mean": -4.6365,
+        "std": 10.8603,
+        "min": -66.1053,
+        "max": 0.0
+      },
+      "sortino ratio": {
+        "mean": -0.3682,
+        "std": 0.7158,
+        "min": -3.9135,
+        "max": 0.0
+      },
+      "max drawdown": {
+        "mean": 0.1186,
+        "std": 0.1856,
+        "min": 0.0,
+        "max": 0.6926
+      }
+    },
+    "MACD": {
+      "episode reward": {
+        "mean": 47.8992,
+        "std": 84.5662,
+        "min": -43.593,
+        "max": 481.809
+      },
+      "cumulative return": {
+        "mean": -0.2228,
+        "std": 0.2619,
+        "min": -0.6482,
+        "max": 0.6882
+      },
+      "annualized return": {
+        "mean": 2600.9923,
+        "std": 17853.8276,
+        "min": -1.0,
+        "max": 127443.6816
+      },
+      "sharpe ratio": {
+        "mean": -2.0861,
+        "std": 0.6598,
+        "min": -3.7504,
+        "max": -0.8338
+      },
+      "sortino ratio": {
+        "mean": -0.7045,
+        "std": 0.2567,
+        "min": -1.5529,
+        "max": -0.2429
+      },
+      "max drawdown": {
+        "mean": 0.3719,
+        "std": 0.1275,
+        "min": 0.15,
+        "max": 0.6783
+      }
+    },
+    "Long": {
+      "episode reward": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "cumulative return": {
+        "mean": 0.7686,
+        "std": 1.0003,
+        "min": -0.5433,
+        "max": 4.8735
+      },
+      "annualized return": {
+        "mean": 1.437881787120574e+18,
+        "std": 1.001553564433037e+19,
+        "min": -0.9834,
+        "max": 7.15458007655145e+19
+      },
+      "sharpe ratio": {
+        "mean": -3.6667,
+        "std": 8.8625,
+        "min": -55.8265,
+        "max": -0.1253
+      },
+      "sortino ratio": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "max drawdown": {
+        "mean": 0.036,
+        "std": 0.1066,
+        "min": 0.0,
+        "max": 0.5433
+      }
+    },
+    "Random": {
+      "episode reward": {
+        "mean": 36.8173,
+        "std": 84.6493,
+        "min": -197.936,
+        "max": 327.9211
+      },
+      "cumulative return": {
+        "mean": -0.9676,
+        "std": 0.0161,
+        "min": -0.9883,
+        "max": -0.8969
+      },
+      "annualized return": {
+        "mean": -1.0,
+        "std": 0.0,
+        "min": -1.0,
+        "max": -1.0
+      },
+      "sharpe ratio": {
+        "mean": -1.86,
+        "std": 0.4348,
+        "min": -2.7527,
+        "max": -0.8923
+      },
+      "sortino ratio": {
+        "mean": -1.4671,
+        "std": 0.4158,
+        "min": -2.4619,
+        "max": -0.5708
+      },
+      "max drawdown": {
+        "mean": 0.969,
+        "std": 0.014,
+        "min": 0.9116,
+        "max": 0.9887
+      }
+    }
+  },
+  "Window-wise": {
+    "Visual agent": {
+      "episode reward": {
+        "mean": 18.174,
+        "std": 142.5269,
+        "min": -632.41,
+        "max": 418.4886
+      },
+      "cumulative return": {
+        "mean": 0.0324,
+        "std": 0.8062,
+        "min": -0.812,
+        "max": 3.9624
+      },
+      "annualized return": {
+        "mean": 4.7625366159109766e+17,
+        "std": 3.3337756100629535e+18,
+        "min": -1.0,
+        "max": 2.3812682932031726e+19
+      },
+      "sharpe ratio": {
+        "mean": -3.067,
+        "std": 5.8982,
+        "min": -36.0696,
+        "max": -0.1091
+      },
+      "sortino ratio": {
+        "mean": -0.5872,
+        "std": 0.7323,
+        "min": -3.7155,
+        "max": 0.0
+      },
+      "max drawdown": {
+        "mean": 0.3183,
+        "std": 0.2783,
+        "min": 0.0,
+        "max": 0.8154
+      }
+    },
+    "Numeric agent": {
+      "episode reward": {
+        "mean": 7.3448,
+        "std": 48.4774,
+        "min": -101.588,
+        "max": 252.565
+      },
+      "cumulative return": {
+        "mean": 0.3002,
+        "std": 0.8466,
+        "min": -0.6252,
+        "max": 4.7389
+      },
+      "annualized return": {
+        "mean": 1.4378646156256046e+18,
+        "std": 1.0065052307256795e+19,
+        "min": -0.9999,
+        "max": 7.189323076642317e+19
+      },
+      "sharpe ratio": {
+        "mean": -4.6365,
+        "std": 10.3543,
+        "min": -54.1422,
+        "max": -0.0304
+      },
+      "sortino ratio": {
+        "mean": -0.3682,
+        "std": 0.7344,
+        "min": -3.8446,
+        "max": 0.0
+      },
+      "max drawdown": {
+        "mean": 0.1186,
+        "std": 0.1736,
+        "min": 0.0,
+        "max": 0.6461
+      }
+    },
+    "MACD": {
+      "episode reward": {
+        "mean": 47.8992,
+        "std": 80.2441,
+        "min": -29.5463,
+        "max": 441.216
+      },
+      "cumulative return": {
+        "mean": -0.2228,
+        "std": 0.2266,
+        "min": -0.6363,
+        "max": 0.4071
+      },
+      "annualized return": {
+        "mean": 2600.9922,
+        "std": 13774.5764,
+        "min": -1.0,
+        "max": 92802.6504
+      },
+      "sharpe ratio": {
+        "mean": -2.0861,
+        "std": 0.6085,
+        "min": -3.6454,
+        "max": -0.9474
+      },
+      "sortino ratio": {
+        "mean": -0.7045,
+        "std": 0.2528,
+        "min": -1.5258,
+        "max": -0.2513
+      },
+      "max drawdown": {
+        "mean": 0.3719,
+        "std": 0.1259,
+        "min": 0.1483,
+        "max": 0.7053
+      }
+    },
+    "Long": {
+      "episode reward": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "cumulative return": {
+        "mean": 0.7686,
+        "std": 0.9438,
+        "min": -0.5996,
+        "max": 4.9952
+      },
+      "annualized return": {
+        "mean": 1.4378817871205742e+18,
+        "std": 1.0065049986866629e+19,
+        "min": -1.0,
+        "max": 7.189323168344605e+19
+      },
+      "sharpe ratio": {
+        "mean": -3.6667,
+        "std": 8.0746,
+        "min": -46.7561,
+        "max": -0.1654
+      },
+      "sortino ratio": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "max drawdown": {
+        "mean": 0.0361,
+        "std": 0.1194,
+        "min": 0.0,
+        "max": 0.5996
+      }
+    },
+    "Random": {
+      "episode reward": {
+        "mean": 36.8173,
+        "std": 83.1491,
+        "min": -180.6645,
+        "max": 390.5089
+      },
+      "cumulative return": {
+        "mean": -0.9676,
+        "std": 0.0151,
+        "min": -0.9889,
+        "max": -0.9046
+      },
+      "annualized return": {
+        "mean": -1.0,
+        "std": 0.0,
+        "min": -1.0,
+        "max": -1.0
+      },
+      "sharpe ratio": {
+        "mean": -1.86,
+        "std": 0.3909,
+        "min": -2.635,
+        "max": -0.8499
+      },
+      "sortino ratio": {
+        "mean": -1.4671,
+        "std": 0.3782,
+        "min": -2.3428,
+        "max": -0.5305
+      },
+      "max drawdown": {
+        "mean": 0.969,
+        "std": 0.0134,
+        "min": 0.9177,
+        "max": 0.9891
+      }
+    }
+  }
+}

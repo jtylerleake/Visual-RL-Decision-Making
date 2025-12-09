@@ -80,15 +80,12 @@ def get_aggregate_stats(cross_validation_results, sig_figs: int = 4) -> Dict:
         for fold_id, window_results in cross_validation_results.items():
             for window_id, strategy_results in window_results.items():
                 for strategy_name, stock_results in strategy_results.items():
-                    
                     # initialize nested dicts
                     fold_data.setdefault(fold_id, {}).setdefault(strategy_name, {})
                     window_data.setdefault(window_id, {}).setdefault(strategy_name, {})
-                    
                     for stock, stock_metrics in stock_results.items():
                         for metric, value in stock_metrics.items():
                             if metric in ignore: continue
-                            
                             # append values
                             fold_data[fold_id][strategy_name].setdefault(metric, []).append(value)
                             window_data[window_id][strategy_name].setdefault(metric, []).append(value)
@@ -96,21 +93,25 @@ def get_aggregate_stats(cross_validation_results, sig_figs: int = 4) -> Dict:
         # helper function to aggregate grouped data
         def aggregate_across_groups(grouped_data) -> Dict:
             aggregated = {}
-            for group_data in grouped_data.values():
-                for strategy_name, metric_data in group_data.items():
-                    if strategy_name not in aggregated:
-                        aggregated[strategy_name] = {}
-                    for metric_name, values in metric_data.items():
-                        aggregated[strategy_name].setdefault(metric_name, []).extend(values)
-            
-            # compute stats for each strategy/metric
-            return {
-                strategy: {
-                    metric: compute_stats(values, sig_figs)
-                    for metric, values in metrics.items()
-                }
-                for strategy, metrics in aggregated.items()
-            }
+            for group_num, group_data in grouped_data.items():
+                for strategy, metric_set in group_data.items():
+                    if strategy not in aggregated:
+                        aggregated[strategy] = {}
+                    for metric, values in metric_set.items():
+                        if metric not in aggregated[strategy]:
+                            aggregated[strategy][metric] = {}
+                        if group_num not in aggregated[strategy][metric]:
+                            aggregated[strategy][metric][group_num] = []
+                        stats = compute_stats(values, sig_figs)
+                        aggregated[strategy][metric][group_num] = stats['mean']
+                        
+            # compute fold/window-wise variance and return
+            for strategy, metric_set in aggregated.items():
+                for metric, means in metric_set.items():
+                    means = list(means.values())
+                    group_stats = compute_stats(means, sig_figs)
+                    aggregated[strategy][metric].update(group_stats)
+            return aggregated
         
         # aggregate across folds and windows and compute stats
         fold_stats = aggregate_across_groups(fold_data)
@@ -212,3 +213,4 @@ def get_performance_metrics(
         'sortino ratio': round(float(sortino_ratio), sig_figs),
         'max drawdown': round(float(max_drawdown), sig_figs)
     }
+
