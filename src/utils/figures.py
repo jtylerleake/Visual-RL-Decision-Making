@@ -9,7 +9,7 @@ def plot_normalized_test_lines(
     plt_save_directory,
     plot_by: str = 'Window',
     strategy: str = 'Visual agent',
-    figsize: tuple = (14, 8),
+    figsize: tuple = (16, 4),
     ) -> None:
     """Plot normalized profit factors as line charts for each temporal window"""
     
@@ -64,24 +64,30 @@ def plot_normalized_test_lines(
                 )
         
             # customize the plot
-            ax.set_xlabel('Time Step', fontsize=12, fontweight='bold')
-            ax.set_ylabel('Profit Factor', fontsize=12, fontweight='bold')
+            ax.set_xlabel('Time Step', fontsize=18, fontweight='bold', labelpad=15)
+            ax.set_ylabel('Profit Factor', fontsize=18, fontweight='bold', labelpad=15)
             
             # title attributes
-            title_suffix = f'Window {window_idx} ({total_lines} test stocks)'
+            title_suffix = f'Window {window_idx}'
             
             ax.set_title(
-                f'{strategy.title()} Cumulative Performance on Test \n'
-                + title_suffix,
-                fontsize = 15,
+                f'Window {window_idx}',
+                fontsize = 20,
                 fontweight = 'bold',
                 pad = 25,
                 loc = 'center'
             )
             
+            ax.tick_params(axis='x', labelsize=16)
+            ax.tick_params(axis='y', labelsize=16)
+            
+            # FORMAT the Y-axis values to 1 decimal place
+            from matplotlib.ticker import FormatStrFormatter
+            ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+            
             # add gridlines and horizontal line at 1.0 for reference
             ax.axhline(y = 1.0, color = 'black', linestyle = '--', linewidth = 1, alpha = 0.5, label = 'Baseline (1.0)')
-            ax.grid(True, alpha = 0.3, linestyle = '--')
+            ax.grid(True, alpha = 0.8, linestyle = '--')
             ax.spines['bottom'].set_color('black')
             ax.spines['bottom'].set_linewidth(1)
             ax.spines['left'].set_color('black')
@@ -91,7 +97,7 @@ def plot_normalized_test_lines(
             # save 
             save_dir = os.path.abspath(plt_save_directory)
             if save_dir and not os.path.exists(save_dir): os.makedirs(save_dir, exist_ok=True)
-            extension = f"window_{window_idx}_normalized_plot"
+            extension = f"{strategy.lower()}_window_{window_idx}_normalized_plot"
             plt_save_path = os.path.normpath(os.path.join(save_dir, extension))
             plt.savefig(plt_save_path, dpi = 300, bbox_inches = 'tight')
         
@@ -127,7 +133,7 @@ def convert_to_latex_table(
             if value is None or np.isnan(value): return default
             if pct: 
                 rounded = round(float(value) * 100, sig_figs)
-                return f"{rounded:.2f}\%"
+                return f"{rounded:.3f}\%"
             else: 
                 rounded = round(float(value), sig_figs)
                 return f"{rounded:.3f}"
@@ -147,33 +153,32 @@ def convert_to_latex_table(
         
         for strategy in strategy_order:
             
-            F1 = format_val(get_metric(results, metric, strategy, '1'), pct = True)
-            F2 = format_val(get_metric(results, metric, strategy, '2'), pct = True)
-            F3 = format_val(get_metric(results, metric, strategy, '3'), pct = True)
-            # F4 = format_val(get_metric(results, metric, strategy, '4'), pct = True)
-            # F5 = format_val(get_metric(results, metric, strategy, '5'), pct = True)
+            # F1 = format_val(get_metric(results, metric, strategy, '1'))
+            # F2 = format_val(get_metric(results, metric, strategy, '2'))
+            # F3 = format_val(get_metric(results, metric, strategy, '3'))
+            # F4 = format_val(get_metric(results, metric, strategy, '4'))
+            # F5 = format_val(get_metric(results, metric, strategy, '5'))
             
-            AVG = format_val(get_metric(results, metric, strategy, 'mean'), pct = True)
-            STD = format_val(get_metric(results, metric, strategy, 'std'))
-            MIN = format_val(get_metric(results, metric, strategy, 'min'), pct = True)
-            MAX = format_val(get_metric(results, metric, strategy, 'max'), pct = True)
+            AVG = format_val(get_metric(results, metric, strategy, 'mean'), pct=True)
+            # STD = format_val(get_metric(results, metric, strategy, 'std'))
+            # MIN = format_val(get_metric(results, metric, strategy, 'min'))
+            # MAX = format_val(get_metric(results, metric, strategy, 'max'))
             
-            # sharpe = format_val(get_metric(results, strategy, 'sharpe ratio', 'mean'))
-            # sortino = format_val(get_metric(results, strategy, 'sortino ratio', 'mean'))
-            # mdd = format_val(get_metric(results, strategy, 'max drawdown', 'mean'), pct = True)
+            # format the row with uniform and minimal whitespace around & 
+            strategy = 'Visual Agent' if strategy == 'Visual agent' else strategy
+            strategy = 'Numeric Agent' if strategy == 'Numeric agent' else strategy
 
-            # format the row with uniform and minimal whitespace around &
             row = (
-                f"{strategy:<20} & "
-                f"{F1} & "
-                f"{F2} & "
-                f"{F3} & "
+                # f"{strategy:<20} & "
+                # f"{F1} & "
+                # f"{F2} & "
+                # f"{F3} & "
                 # f"{F4} & "
                 # f"{F5} & "
                 f"{AVG} & "
-                f"{STD} & "
-                f"{MIN} & "
-                f"{MAX} & \\\\"
+                # f"{STD} & "
+                # f"{MIN} & "
+                # f"{MAX} \\\\"
             )
             
             latex_lines.append(row)

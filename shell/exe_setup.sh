@@ -1,5 +1,5 @@
 
-# ssh -i C:\Users\Jtyler\.ssh\id_rsa ubuntu@157.151.245.37
+# ssh -i C:\Users\Jtyler\.ssh\id_rsa ubuntu@129.153.47.117
 
 # --- 1. update and upgrade the system --- # 
 # echo "Starting system update and essential package installation..."
@@ -15,10 +15,10 @@ pip3 --version
 echo "Cloning the project repository..."
 cd ~
 git clone https://github.com/jtylerleake/visual-reinforcement-fin-decision-making.git
-cd visual-reinforcement-fin-decision-making
 
 # --- 4. make the python virtual environment --- # 
 echo "Initializing the virtual environment and upgrading pip inside venv..."
+cd visual-reinforcement-fin-decision-making
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip wheel setuptools
